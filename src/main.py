@@ -5,6 +5,8 @@ from logger import log_info
 from topic_clusters import find_topic_clusters
 #from get_features import *
 #from summarize import *
+import nltk
+import SummaryGenerator
 
 parser = ArgumentParser()
 parser.add_argument("--schema", type=str, required=True)
@@ -23,14 +25,19 @@ def main():
 	'''
 	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2), args.mode)
 	log_info("Found %d document clusters." % len(topic_clusters))
-
+	
 	# get list of feature vectors (for now, just plain text).
 	# feature_vectors should be an n by f 2d array where f is the number of features per topic.
 	# For now, f will be the number of documents and each feature will be the full text of 1 document.
 	#feature_vectors = get_features.get_features(documents)
-
+	
 	# should create n files with names taken from list ids
 	#summarize.summarize(ids, feature_vectors)
+	
+	sg = SummaryGenerator.SummaryGenerator();  #instantiate object
+	words = nltk.corpus.brown.words(categories='news')
+	summary = sg.ToSummary(words)   #generate summary
+	print(summary)
 
 if __name__ == "__main__":
 	main()
