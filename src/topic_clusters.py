@@ -6,17 +6,32 @@ from BeautifulSoup import BeautifulSoup as soup
 from logger import log_warn
 import os, fnmatch
 
-def resolve_training_paths(clusters,corpora):
+def _resolve_paths(clusters,corpora):
+	def traverse(doc,corpus,ext=".xml"):
+		path = [os.path.join(path,f)
+			for path,names,files in os.walk(corpus)
+			for f in fnmatch.filter(files, "%s%s" % (doc,ext))]
+		return path
+	def preprocess_traverse(identifier, acquaint):
+		prefix = identifier[:3]
+		if prefix == "XIE":
+			prefix = "XIN"
+		search = "%s_%s" % (identifier[3:-5],prefix)
+		if prefix != "NYT":
+			search = "%s_ENG" % search
+		return traverse(search,acquaint,ext="")
+
 	aquaint, aquaint2 = corpora
 	resolved = dict()
 	for topic, cluster in clusters.iteritems():		
 		absolute_paths = []
 		for doc,identifier in cluster:
-			path = [os.path.join(path,f) 
-				for path,names,files in os.walk(aquaint2) 
-				for f in fnmatch.filter(files, "%s.xml" % doc.lower())]
-			if len(path) > 1:
-				log_warn("Found multiple source files for %s ..." % doc)
+			path = traverse(doc.lower(),aquaint2)
+			if len(path) == 0:
+				path = preprocess_traverse(identifier,aquaint)
+			if len(path) != 1:
+				log_warn("Issue resolving document path %s ..." % identifier)
+				continue
 			absolute_paths += [(path[0],identifier)]
 		if len(absolute_paths) != len(cluster):
 			log_warn("Mismatch between raw/resolved clusters...")
@@ -40,7 +55,4 @@ def find_topic_clusters(schema,corpora,mode):
 			topic_key = topic['id']
 			docs = retrieve_docs(topic)
 			clusters[topic_key] = docs
-	if mode == "train":
-		return resolve_training_paths(clusters,corpora)
-	else:
-		raise ValueError("Unsupported mode")
+	return _resolve_paths(clusters,corpora)
