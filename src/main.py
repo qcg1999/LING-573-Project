@@ -3,7 +3,7 @@
 from argparse import ArgumentParser
 from logger import log_info
 from topic_clusters import find_topic_clusters
-#from get_features import *
+from features_from_doc import *
 import SummaryGenerator
 
 parser = ArgumentParser()
@@ -30,13 +30,17 @@ def main():
 	# feature_vectors should be an n by f 2d array where f is the number of features per topic.
 	# For now, f will be the number of documents and each feature will be the full text of 1 document.
 	for topic, docs in topic_clusters.iteritems():
-		#feature_vectors = get_features.get_features(docs)
-		continue
+		feature_vectors = get_features(docs)
 	
-	sg = SummaryGenerator.SummaryGenerator();  #instantiate object
-	#words = nltk.corpus.brown.words(categories='news')
-	summary = sg.ToSummary(loremipsum.split())   #generate summary
-	log_info("EXAMPLE SUMMARY: %s " % summary)
+		sg = SummaryGenerator.SummaryGenerator();  #instantiate object
+		#words = nltk.corpus.brown.words(categories='news')
+		summary = sg.ToSummary(feature_vectors)   #generate summary
+#		log_info("EXAMPLE SUMMARY: %s " % summary)
+
+		id1 = topic[:-1]
+                id2 = topic[-1]
+                f = open("../outputs/D2/{0}-A.M.100.{1}.0".format(id1, id2), "w+")
+                f.write(summary)
 
 if __name__ == "__main__":
 	main()
