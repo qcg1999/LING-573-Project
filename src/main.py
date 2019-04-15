@@ -4,8 +4,6 @@ from argparse import ArgumentParser
 from logger import log_info
 from topic_clusters import find_topic_clusters
 #from get_features import *
-#from summarize import *
-import nltk
 import SummaryGenerator
 
 parser = ArgumentParser()
@@ -14,6 +12,8 @@ parser.add_argument("--aquaint", type=str, default="/corpora/LDC/LDC02T31")
 parser.add_argument("--aquaint2", type=str, default="/corpora/LDC/LDC08T25")
 parser.add_argument("--mode", type=str, choices=['train','dev','eval'],default='train')
 args, unks = parser.parse_known_args()
+
+loremipsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
 
 def main():	
 	log_info("Finding document clusters for %s mode..." % args.mode)
@@ -25,19 +25,18 @@ def main():
 	'''
 	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2), args.mode)
 	log_info("Found %d document clusters." % len(topic_clusters))
-	
+
 	# get list of feature vectors (for now, just plain text).
 	# feature_vectors should be an n by f 2d array where f is the number of features per topic.
 	# For now, f will be the number of documents and each feature will be the full text of 1 document.
-	#feature_vectors = get_features.get_features(documents)
-	
-	# should create n files with names taken from list ids
-	#summarize.summarize(ids, feature_vectors)
+	for topic, docs in topic_clusters.iteritems():
+		#feature_vectors = get_features.get_features(docs)
+		continue
 	
 	sg = SummaryGenerator.SummaryGenerator();  #instantiate object
-	words = nltk.corpus.brown.words(categories='news')
-	summary = sg.ToSummary(words)   #generate summary
-	print(summary)
+	#words = nltk.corpus.brown.words(categories='news')
+	summary = sg.ToSummary(loremipsum.split())   #generate summary
+	log_info("EXAMPLE SUMMARY: %s " % summary)
 
 if __name__ == "__main__":
 	main()

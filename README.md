@@ -7,3 +7,6 @@ From src directory: ./run.sh ~/dropbox/18-19/573/Data/Documents/training/2009/Up
 
 This will only find training files; dev and eval files pending
 
+** update 14 April **
+
+D2.cmd should work with condor\_submit and return successfully 
