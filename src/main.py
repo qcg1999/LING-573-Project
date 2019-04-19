@@ -22,7 +22,7 @@ def main():
 	for index,(topic, docs) in enumerate(topic_clusters.iteritems()):
 		if index != 0 and index % 10 == 0:
 			log_info("Processing cluster %d" % index)
-		feature_vectors = get_features(docs)
+		sentences, feature_vectors = get_features(docs)
 	
 		sg = SummaryGenerator.SummaryGenerator();  #instantiate object
 		summary = sg.ToSummary(feature_vectors)   #generate summary
