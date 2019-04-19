@@ -30,11 +30,11 @@ def main():
 	# feature_vectors should be an n by f 2d array where f is the number of features per topic.
 	# For now, f will be the number of documents and each feature will be the full text of 1 document.
 	for topic, docs in topic_clusters.iteritems():
-		feature_vectors = get_features(docs)
+		sentences, feature_vectors = get_features(docs)
 	
 		sg = SummaryGenerator.SummaryGenerator();  #instantiate object
 		#words = nltk.corpus.brown.words(categories='news')
-		summary = sg.ToSummary(feature_vectors)   #generate summary
+		summary = sg.ToSummary(sentences, feature_vectors)   #generate summary
 #		log_info("EXAMPLE SUMMARY: %s " % summary)
 
 		id1 = topic[:-1]
