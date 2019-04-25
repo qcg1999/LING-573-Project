@@ -3,6 +3,8 @@
 from argparse import ArgumentParser
 from logger import log_info
 from topic_clusters import find_topic_clusters
+from content_realization import realize
+from textrank import textrank
 from features_from_doc import *
 import SummaryGenerator
 
@@ -20,13 +22,10 @@ def main():
 
 	log_info("Summarizing...")
 	for index,(topic, docs) in enumerate(topic_clusters.iteritems()):
-		if index != 0 and index % 10 == 0:
-			log_info("Processing cluster %d" % index)
+		log_info("Processing cluster %s..." % topic)
 		sentences, feature_vectors = get_features(docs)
-	
-		sg = SummaryGenerator.SummaryGenerator();  #instantiate object
-		summary = sg.ToSummary(feature_vectors)   #generate summary
-
+		ranked_sentences = textrank(feature_vectors,sentences)
+		summary = realize(ranked_sentences)
 		id1 = topic[:-1]
                 id2 = topic[-1]
                 f = open("../outputs/D2/{0}-A.M.100.{1}.0".format(id1, id2), "w+")
