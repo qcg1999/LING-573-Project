@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from argparse import ArgumentParser
 from logger import log_info
 from topic_clusters import find_topic_clusters
