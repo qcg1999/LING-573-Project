@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export PYTHON_CMD=python
+export PYTHON_CMD=python3
 ### train mode
 $PYTHON_CMD main.py --schema $1 --mode "train"
 

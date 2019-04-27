@@ -2,7 +2,7 @@
 '''topic cluster utilities
 '''
 
-from BeautifulSoup import BeautifulSoup as soup
+from bs4 import BeautifulSoup as soup
 from logger import log_warn
 import os, fnmatch
 
@@ -23,7 +23,7 @@ def _resolve_paths(clusters,corpora):
 
 	aquaint, aquaint2 = corpora
 	resolved = dict()
-	for topic, cluster in clusters.iteritems():		
+	for topic, cluster in clusters.items():		
 		absolute_paths = []
 		for doc,identifier in cluster:
 			path = traverse(doc.lower(),aquaint2)

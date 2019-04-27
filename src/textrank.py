@@ -21,7 +21,7 @@ def _fast_pairwise_cosine_distance(matrix):
 
 def _textrank(feature_matrix):
 	similarities = _fast_pairwise_cosine_distance(feature_matrix)
-	return nx.pagerank(nx.from_numpy_array(similarities))
+	return nx.pagerank(nx.from_numpy_matrix(similarities))
 
 
 if __name__ == "__main__":
@@ -42,5 +42,3 @@ if __name__ == "__main__":
 	feats = np.array(feats.toarray(),dtype=np.int32)
 
 	ranked = textrank(feats, corpus, len(vocab))
-	for sent in ranked[0:5]:
-		print sent

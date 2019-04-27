@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from argparse import ArgumentParser
 from logger import log_info
 from topic_clusters import find_topic_clusters
@@ -21,15 +19,15 @@ def main():
 	log_info("Found %d document clusters." % len(topic_clusters))
 
 	log_info("Summarizing...")
-	for index,(topic, docs) in enumerate(topic_clusters.iteritems()):
+	for index,(topic, docs) in enumerate(topic_clusters.items()):
 		log_info("Processing cluster %s..." % topic)
 		sentences, feature_vectors = get_features(docs)
 		ranked_sentences = textrank(feature_vectors,sentences)
 		summary = realize(ranked_sentences)
 		id1 = topic[:-1]
-                id2 = topic[-1]
-                f = open("../outputs/D2/{0}-A.M.100.{1}.0".format(id1, id2), "w+")
-                f.write(summary)
+		id2 = topic[-1]
+		f = open("../outputs/D2/{0}-A.M.100.{1}.0".format(id1, id2), "w+")
+		f.write(summary)
 
 if __name__ == "__main__":
 	main()
