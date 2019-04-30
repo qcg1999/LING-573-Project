@@ -37,7 +37,7 @@
   John Dodson \\
   {\tt jrdodson@uw.edu} \\\And
   Charlie Guo \\
-  {\tt email@domain}
+  {\tt qcg@uw.edu}
   }
 
 \date{}
@@ -92,7 +92,23 @@ In applying TextRank to sentence processing, we compute a pairwise similarity ma
 After the TextRank algorithm converges, the algorithm returns the top K sentences as the cluster summary. Each summary contains 100 words maximum. The system maintains a reference to the original sentences, and uses the original text as output. We cleanse the summaries by stripping trailing newlines, and order the outputs as one sentence per line.
 \section{Results}
 
-Results TBD
+44 summaries have been generated and evaludated with ROUGE. Table-1 listed the average ROUGE-1 and ROUGE-2 recalls.
+
+\begin{table}[ht]
+\caption{Base Results} 
+\centering
+\begin{tabular}{c c c}
+\hline
+Evaluation Metrics & ROUGE-1 & ROUGE-2 \\
+\hline
+Average R          & 0.23679 & 0.06350 \\
+\hline
+Average P          & 0.29584 & 0.07815 \\
+\hline
+Average F          & 0.26093 & 0.06952 \\
+\hline
+\end{tabular}
+\end{table}
 
 \section{Discussion}
 
