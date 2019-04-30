@@ -33,7 +33,7 @@
 \title{LING 573 Multi-Document Summarization}
 
 \author{Emma Bateman \\
-  {\tt email@domain} \\\And
+  {\tt ebateman@uw.edu} \\\And
   John Dodson \\
   {\tt jrdodson@uw.edu} \\\And
   Charlie Guo \\
@@ -112,7 +112,28 @@ Average F          & 0.26093 & 0.06952 \\
 
 \section{Discussion}
 
-Discussion TBD
+Many of the errors in our generated summaries have to do with coherence and information ordering, as one would expect. One particularly common error is the placement of pronouns before or in the absence of an antecedent -- 8 of the 44 summaries contain this error. In the following example, "he" is used four times before a possible antecedent appears.\\
+
+\begin{quote}
+The Ten Commandments monument does not, he said.\\
+By contrast, the Ten Commandments are not just a religious symbol, he said.\\
+"The Ten Commandments have undeniable religious significance," he said.\\
+The message of the Ten Commandments was deeply religious he said: "All of these are God's commands to his people."\\
+Scalia denounced the idea of "watering down" the religious message of the Ten Commandments, which he said was "government derives its authority from God," and suggested that it would be a "Pyrrhic victory" if Texas won on those grounds.
+\end{quote}
+
+Redundancy is also a major issue for our system. Not only are concepts frequently repeated, 7 of the 44 summaries include sentences that are identical or nearly identical. One summary has the same sentence 3 times:\\
+
+\begin{quote}
+"The nation deserves and I will select a Supreme Court justice that Americans can be proud of," Bush said.\\
+"The nation deserves and I will select a Supreme Court Justice that Americans can be proud of," Bush said.\\
+"The nation deserves and I will select a Supreme Court justice that Americans can be proud of," Bush said.\\
+Sandra Day O'Connor, the first  woman ever appointed to the US Supreme Court, said Friday that she is retiring, giving US president George W. Bush his first  opportunity to appoint a justice.
+\end{quote}
+
+It is easy to see why the system produces such redundancies. If multiple articles use the same quote or same turn of phrase, the two sentences from the two articles will then have very high similarity, boosting one another's saliency scores and causing one another to be selected.
+
+High on our priority list going forward will be the implementation of an anti-redundancy measure.
 
 
 \section{Conclusion}
