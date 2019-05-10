@@ -1,21 +1,21 @@
-import spacy
+from nltk import word_tokenize, pos_tag, ne_chunk
+from nltk.chunk import tree2conlltags
 
-class SpacyParser(object):
-	def __init__(self, model='en'):
-		self._parser = spacy.load(model)
-	
-	@property
-	def parser(self):
-		return self._parser
+class EntityParser(object):
+	def __init__(self):
+		pass
 
-	def parse(self, text):
-		return [(t.text, t.tag_, "%s-%s" % (t.ent_iob_, t.ent_type_)) for t in self._parser(text)]
+	def __call__(self, sentence):
+		tokens = [token for token in word_tokenize(sentence) if token.isalnum()]
+		parsed = ne_chunk(pos_tag(tokens))
+		return tree2conlltags(parsed)		
+		
 
 def annotate(sentences):
-	parser = SpacyParser()
+	parser = EntityParser()
 	enriched = []
 	for sentence in sentences:
 		sentence = sentence[1].strip()
-		parsed = parser.parse(sentence)
+		parsed = parser(sentence)
 		enriched += [parsed]
 	return enriched

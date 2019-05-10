@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import numpy.linalg as la
 import numpy as np
 import networkx as nx
@@ -9,7 +10,7 @@ def textrank(feature_matrix,src_matrix):
 		execute standard PageRank algorithm. Returns a sorted set of sentences.
 	'''
 	ranked = _textrank(feature_matrix)
-	ranked = sorted(((ranked[i],s) for i,s in enumerate(src_matrix)), reverse=True)
+	ranked = sorted(((ranked[i],s) for i,s in enumerate(src_matrix) if s.strip() != None), reverse=True)
 	return ranked
 
 def _fast_pairwise_cosine_distance(matrix):

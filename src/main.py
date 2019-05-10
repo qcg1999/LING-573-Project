@@ -5,6 +5,7 @@ from features.content_realization import realize
 from features.feature_annotator import annotate
 from features.features_from_doc import *
 from algorithms.textrank import textrank
+from algorithms.entity_grid import entity_grid_order
 import algorithms.SummaryGenerator
 import os
 import pickle
@@ -17,6 +18,12 @@ parser.add_argument("--output_dir", type=str, default='outputs/D3')
 parser.add_argument("--mode", type=str, choices=['train','dev','eval'],default='train')
 parser.add_argument("--store", type=str, default=None)
 parser.add_argument("--load", type=str, default=None)
+
+# CoreNLP configs
+parser.add_argument("--stanford_home", type=str, default="/NLP_TOOLS/parsers/stanford_parser/latest")
+parser.add_argument("--model_path", type=str, default='/NLP_TOOLS/parsers/stanford_parser/latest/englishPCFG.ser.gz')
+parser.add_argument("--parser_jar", type=str, default='/NLP_TOOLS/parsers/stanford_parser/latest/stanford-parser.jar')
+
 args, unks = parser.parse_known_args()
 
 def main():	
@@ -47,7 +54,7 @@ def main():
 
 		ranked_sentences = textrank(feature_vectors,sentences)
 		
-#		enriched = annotate(ranked_sentences) # e.g., [(Bob, NN, B-PERSON), .... ]
+		#entity_grid_order(ranked_sentences,args)
 		
 		summary = realize(ranked_sentences)
 		id1 = topic[:-1]
