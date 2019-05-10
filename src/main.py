@@ -2,7 +2,6 @@ from argparse import ArgumentParser
 from utils.logger import log_info
 from features.topic_clusters import find_topic_clusters
 from features.content_realization import realize
-from features.feature_annotator import annotate
 from features.features_from_doc import *
 from algorithms.textrank import textrank
 from algorithms.entity_grid import entity_grid_order
