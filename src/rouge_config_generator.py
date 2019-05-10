@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from logger import *
+from utils.logger import *
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 import re   #regular expression
