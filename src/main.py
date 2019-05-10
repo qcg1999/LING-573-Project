@@ -7,6 +7,7 @@ from features.features_from_doc import *
 from algorithms.textrank import textrank
 import algorithms.SummaryGenerator
 import os
+import pickle
 
 parser = ArgumentParser()
 parser.add_argument("--schema", type=str, required=True)
@@ -14,6 +15,8 @@ parser.add_argument("--aquaint", type=str, default="/corpora/LDC/LDC02T31")
 parser.add_argument("--aquaint2", type=str, default="/corpora/LDC/LDC08T25")
 parser.add_argument("--output_dir", type=str, default='outputs/D3')
 parser.add_argument("--mode", type=str, choices=['train','dev','eval'],default='train')
+parser.add_argument("--store", type=str, default=None)
+parser.add_argument("--load", type=str, default=None)
 args, unks = parser.parse_known_args()
 
 def main():	
@@ -26,18 +29,36 @@ def main():
 	if not os.path.exists(args.output_dir):
 		os.makedirs(args.output_dir)
 
+	if args.load:
+		read_file = open(args.load, "rb")
+		data = pickle.load(read_file)
+		read_file.close()
+	else:
+		data = {}
+
 	for index,(topic, docs) in enumerate(topic_clusters.items()):
 		log_info("Processing cluster %s..." % topic)
-		sentences, feature_vectors = get_features(docs)
+
+		if args.load:
+			sentences, feature_vectors = data[index]
+		else:
+			sentences, feature_vectors = get_features(docs)
+			data[index] = (sentences, feature_vectors)
+
 		ranked_sentences = textrank(feature_vectors,sentences)
 		
-		enriched = annotate(ranked_sentences) # e.g., [(Bob, NN, B-PERSON), .... ]
+#		enriched = annotate(ranked_sentences) # e.g., [(Bob, NN, B-PERSON), .... ]
 		
 		summary = realize(ranked_sentences)
 		id1 = topic[:-1]
 		id2 = topic[-1]
 		f = open("{0}/{1}-A.M.100.{2}.0".format(args.output_dir, id1, id2), "w+")
 		f.write(summary)
+
+	if args.store:
+		write_file = open(args.store, "wb+")
+		pickle.dump(data, write_file)
+		write_file.close()
 
 if __name__ == "__main__":
 	main()
