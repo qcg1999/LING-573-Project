@@ -57,7 +57,7 @@ def make_grid(rows, columns):
 	grid = grid.fillna(0)
 	return grid	
 
-def _entity_grid_order(sentences, entities, subj_rank=1.0, obj_rank=0.5, other_rank=0.1):
+def _order_entity_grid(sentences, entities, subj_rank=1.0, obj_rank=0.5, other_rank=0.1):
 	grid = make_grid(sentences, entities)
 	for index, (sentence, relations) in enumerate(sentences):
 		for entity,rel in relations.items():
@@ -67,22 +67,93 @@ def _entity_grid_order(sentences, entities, subj_rank=1.0, obj_rank=0.5, other_r
 				grid.at[index,entity] = obj_rank
 			else:
 				grid.at[index,entity] = other_rank
-	#print(grid)
-	# do stuff with grid
 
-def entity_grid_order(sentence_tuples, args):
-	sentences = [tup[1] for tup in sentence_tuples]
-	parser = Parser(args.stanford_home, args.model_path, args.parser_jar)
+	print("grid in _order_entity_grid:\n", grid)
+
+	return grid
+
+def order_entity_grid(sentences, stanford_home, model_path, parser_jar):
+	#sentences = [tup[1] for tup in sentence_tuples]
+	#sentences = [tup[1] for tup in sentence_tuples]
+	parser = Parser(stanford_home, model_path, parser_jar)
 	enriched_sentences, entities = parser(sentences)
-	_entity_grid_order(enriched_sentences, entities)
+
+	print(enriched_sentences)
+	print(entities)
+
+	grid = _order_entity_grid(enriched_sentences, entities)
+	return grid
+
+def get_ordered_sents_index(grid):
+	''' given an entity grid with rows being sentence index and columns being entities 
+		argument grid is of DataFrame type in package of Pandas
+	'''
+	index = []  # a list of sentence index ordered by an algorithms and values in grid
+
+	weight = {}  # a dictionary save the weight of entities (summed over sentences)
+	for c in grid.columns:
+		weight[c] = sum(grid[c])
+
+	print("weight: \n", weight)
+	entity_names = weight.keys();
+
+	accounted = [] # saves entities accounted for
+	#loop through each column, and find one with the larget value
+	while len(accounted) < len(entity_names):
+
+		remained = {k:v for k, v in weight.items() if k not in accounted}
+		print("remained:",remained)
+
+		#get the entity with the maximum weight
+		import operator
+		selected = max(remained.items(), key=operator.itemgetter(1))[0]
+		print("selected: ", {k:v for k, v in weight.items() if k in selected})
+
+		accounted.append(selected)
+		print("accounted: ", accounted)
+
+		#select sentences associcated with this entity
+		sents_selected = grid[selected][grid[selected] > 0]
+		# sort by weight in sentences
+		# may consider other factors such as POS (S and O, for example)
+		sents_selected = sents_selected.sort_values(ascending=False)
+
+		# get sents index
+		sents_index = list(sents_selected.keys())
+		print("setence_selected:\n", sents_index)
+
+		#index.append(sents_index)
+		index += [e for e in sents_index if e not in index]
+
+		#you could update weight here
+
+	return index
+
 
 if __name__ == "__main__":
+
+	#import pdb; pdb.set_trace()
+
 	stanford_home = '/NLP_TOOLS/parsers/stanford_parser/latest/'
 	model_path = '/NLP_TOOLS/parsers/stanford_parser/latest/englishPCFG.ser.gz'
 	parser_jar = '/NLP_TOOLS/parsers/stanford_parser/latest/stanford-parser.jar'
 	
-	sentences = ["Bob gave Alice a pizza.", "Alice was happy with Jim."]
-	parser = Parser(stanford_home, model_path, parser_jar)
+#	sentences = ["Bob gave Alice a pizza.", 
+#				"Alice was happy with Jim."]
 
-	sentences, entities = parser(sentences)
-	_entity_grid_order(sentences, entities)
+	sentences = ["Bob returned a book to the library", "The book was over due", 
+				"Bob was not happy.", "It was a rainy day"]
+
+	#parser = Parser(stanford_home, model_path, parser_jar)
+	#sentences, entities = parser(sentences)
+
+	grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
+	#print(grid)
+	index =  get_ordered_sents_index(grid)
+	print("index: ", index)
+
+	print("sentence ordered: \n")
+	for i in index:
+		print("{0}\n".format(sentences[i]))
+
+#eof
