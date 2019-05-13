@@ -85,16 +85,16 @@ def order_entity_grid(sentences, stanford_home, model_path, parser_jar):
 	return grid
 
 def get_ordered_sents_index(grid):
-	''' given an entity grid with rows being sentence index and columns being entities 
+	''' given an entity grid with rows being sentence index and columns being entities; 
 		argument grid is of DataFrame type in package of Pandas
 	'''
-	index = []  # a list of sentence index ordered by an algorithms and values in grid
+	index = []  # a list of sentence index re-ordered by this method 
 
-	weight = {}  # a dictionary save the weight of entities (summed over sentences)
+	weight = {}  # a dictionary of calculated weight of entities 
 	for c in grid.columns:
 		weight[c] = sum(grid[c])
 
-	print("weight: \n", weight)
+	#print("weight: \n", weight)
 	entity_names = weight.keys();
 
 	accounted = [] # saves entities accounted for
@@ -102,15 +102,15 @@ def get_ordered_sents_index(grid):
 	while len(accounted) < len(entity_names):
 
 		remained = {k:v for k, v in weight.items() if k not in accounted}
-		print("remained:",remained)
+		#print("remained:",remained)
 
 		#get the entity with the maximum weight
 		import operator
 		selected = max(remained.items(), key=operator.itemgetter(1))[0]
-		print("selected: ", {k:v for k, v in weight.items() if k in selected})
+		#print("selected: ", {k:v for k, v in weight.items() if k in selected})
 
 		accounted.append(selected)
-		print("accounted: ", accounted)
+		#print("accounted: ", accounted)
 
 		#select sentences associcated with this entity
 		sents_selected = grid[selected][grid[selected] > 0]
@@ -120,7 +120,7 @@ def get_ordered_sents_index(grid):
 
 		# get sents index
 		sents_index = list(sents_selected.keys())
-		print("setence_selected:\n", sents_index)
+		#print("setence_selected:\n", sents_index)
 
 		#index.append(sents_index)
 		index += [e for e in sents_index if e not in index]
@@ -129,6 +129,33 @@ def get_ordered_sents_index(grid):
 
 	return index
 
+def get_ordered_index(sentences):
+
+	stanford_home = '/NLP_TOOLS/parsers/stanford_parser/latest/'
+	model_path = '/NLP_TOOLS/parsers/stanford_parser/latest/englishPCFG.ser.gz'
+	parser_jar = '/NLP_TOOLS/parsers/stanford_parser/latest/stanford-parser.jar'
+
+	grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
+	#print(grid)
+	try: 
+		index =  get_ordered_sents_index(grid)
+	except UnicodeDecodeError:
+		print("UnicodeDecodeError occured")
+	else:
+		print("")
+		
+	#index = [i for i in range(0, len(sentences))]
+	print("index of reordered sents: \n", index)
+
+	return index
+
+def get_ordered_sentences(sentences):
+
+	index = get_ordered_index(sentences)
+
+	sents = [sentences[i] for i in index]
+
+	return sents 
 
 if __name__ == "__main__":
 
