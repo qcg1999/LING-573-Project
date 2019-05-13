@@ -1,6 +1,17 @@
 '''Utilities for cleaning result sentences
 '''
 
+def realize2(sentences, max_words=100):
+	summary = ''
+	len_summary = 0
+	for s in sentences:
+		s = _clean(s)
+		len_s = len(s.split())
+		if len_summary + len_s >  max_words:
+			break
+		summary = '%s\n%s' % (summary, s)
+		len_summary += len_s
+	return summary.strip()	
 
 def realize(ranked_sentence_tuples, max_words=100):
 	summary = ''
