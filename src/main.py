@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from utils.logger import log_info
 from features.topic_clusters import find_topic_clusters
-from features.content_realization import realize
+from features.content_realization import *
 from features.features_from_doc import *
 from algorithms.textrank import textrank
 from algorithms.entity_grid import entity_grid_order
@@ -52,10 +52,14 @@ def main():
 			data[index] = (sentences, feature_vectors)
 
 		ranked_sentences = textrank(feature_vectors,sentences)
+		summary_sentences = cut_off(ranked_sentences)
+
+		#baseline information ordering
+		summary_sentences = sorted(summary_sentences)
+
+#		entity_grid_order(ranked_sentences,args)
 		
-		#entity_grid_order(ranked_sentences,args)
-		
-		summary = realize(ranked_sentences)
+		summary = realize(summary_sentences)
 		id1 = topic[:-1]
 		id2 = topic[-1]
 		f = open("{0}/{1}-A.M.100.{2}.0".format(args.output_dir, id1, id2), "w+")

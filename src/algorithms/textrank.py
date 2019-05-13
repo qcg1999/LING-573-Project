@@ -1,4 +1,3 @@
-from collections import OrderedDict
 import numpy.linalg as la
 import numpy as np
 import networkx as nx
@@ -10,8 +9,9 @@ def textrank(feature_matrix,src_matrix):
 		given an NxM feature matrix, generate a similarity matrix using cosine similarity and
 		execute standard PageRank algorithm. Returns a sorted set of sentences.
 	'''
+
 	ranked = _textrank(feature_matrix, 10)
-	ranked_sentences = [(score, src_matrix[i]) for (score, i) in ranked]
+	ranked_sentences = [src_matrix[i] for i in ranked]
 	return ranked_sentences
 
 def _fast_pairwise_cosine_distance(matrix):
@@ -29,7 +29,7 @@ def _textrank(feature_matrix, n):
 		feature_matrix = feature_matrix - feature_matrix[best]
 		feature_matrix = feature_matrix.clip(min=0)
 		feature_matrix = np.delete(feature_matrix, best, 0)
-		sentence_order.append((score, best))
+		sentence_order.append(best)
 	return sentence_order
 
 

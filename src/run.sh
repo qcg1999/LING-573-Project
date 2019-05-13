@@ -3,7 +3,8 @@
 export PYTHON_CMD=python3
 
 ### env setup
-$PYTHON_CMD src/main.py --schema $1 --mode "train"
+unzip test_features_positions.zip
+$PYTHON_CMD src/main.py --schema $1 --mode "train" --load "test_features_positions"
 
 ### generate rouge config file
 $PYTHON_CMD src/rouge_config_generator.py

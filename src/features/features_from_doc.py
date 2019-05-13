@@ -7,6 +7,7 @@ import numpy as np
 
 def get_features(docs):
     sentences = []
+    positions = []
 
     vocab_dict = {}
     vocab_list = []
@@ -24,8 +25,18 @@ def get_features(docs):
         soup = BeautifulSoup(f.read(), "lxml")
         docs = soup.findAll("doc", id=file_id)
         for doc in docs:
+
+            #get sentences and positions in document
+            doc_sentences = []
+            doc_positions = []
             for p in doc.findAll("p"):
-                sentences += nltk.sent_tokenize(p.text)
+                doc_sentences += nltk.sent_tokenize(p.text)
+            n = len(doc_sentences)
+            for i in range(n):
+                doc_positions.append(float(i)/n)
+
+            sentences += doc_sentences
+            positions += doc_positions
 
     #first pass: get vocab and tokenize sentences
     processed_sentences = []
@@ -48,4 +59,4 @@ def get_features(docs):
         for word in processed_sentences[i]:
             features[i, vocab_dict[word]] += 1
 
-    return sentences, features
+    return [(positions[i], sentences[i]) for i in range(len(sentences))], features
