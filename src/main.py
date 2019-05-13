@@ -2,10 +2,11 @@ from argparse import ArgumentParser
 from utils.logger import log_info
 from features.topic_clusters import find_topic_clusters
 from features.content_realization import realize
+from features.content_realization import realize2
 from features.features_from_doc import *
 from algorithms.textrank import textrank
-from algorithms.entity_grid import entity_grid_order
-import algorithms.SummaryGenerator
+from algorithms.entity_grid import * 
+#import algorithms.SummaryGenerator
 import os
 import pickle
 
@@ -13,7 +14,7 @@ parser = ArgumentParser()
 parser.add_argument("--schema", type=str, required=True)
 parser.add_argument("--aquaint", type=str, default="/corpora/LDC/LDC02T31")
 parser.add_argument("--aquaint2", type=str, default="/corpora/LDC/LDC08T25")
-parser.add_argument("--output_dir", type=str, default='outputs/D3')
+parser.add_argument("--output_dir", type=str, default='../outputs/D3')
 parser.add_argument("--mode", type=str, choices=['train','dev','eval'],default='train')
 parser.add_argument("--store", type=str, default=None)
 parser.add_argument("--load", type=str, default=None)
@@ -51,15 +52,27 @@ def main():
 			sentences, feature_vectors = get_features(docs)
 			data[index] = (sentences, feature_vectors)
 
-		ranked_sentences = textrank(feature_vectors,sentences)
+		log_info("textrank starting...")
+		ranked_sentence_tups = textrank(feature_vectors,sentences)
+
+		ranked_sentences = [r[1] for r in ranked_sentence_tups]
 		
-		#entity_grid_order(ranked_sentences,args)
+		log_info("get_ordered_sentences starting..." )
+		ranked_sentences = get_ordered_sentences(ranked_sentences[0:4]) #only top 4 sents to be re-ordered
+
+		print("ranked_sentences\n", ranked_sentences)
 		
-		summary = realize(ranked_sentences)
-		id1 = topic[:-1]
-		id2 = topic[-1]
-		f = open("{0}/{1}-A.M.100.{2}.0".format(args.output_dir, id1, id2), "w+")
+		log_info("realize starting...")
+		summary = realize2(ranked_sentences)
+		print("summary: \n", summary)
+
+		summary_file = "{0}/{1}-A.M.100.{2}.0".format(args.output_dir, topic[:-1], topic[-1])
+
+		log_info("creating summary file {0}".format(summary_file) )
+
+		f = open(summary_file, "w+")
 		f.write(summary)
+		f.close()
 
 	if args.store:
 		write_file = open(args.store, "wb+")
