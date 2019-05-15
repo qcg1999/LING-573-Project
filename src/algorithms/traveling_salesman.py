@@ -9,7 +9,7 @@ def dist(vector1, vector2, cosine):
 def cost(vector_list):
     cost = 0
     for i in range(1, len(vector_list)):
-        cost += dist(vector_list[i-1], vector_list[i], 0)
+        cost += dist(vector_list[i-1], vector_list[i], 1)
     return cost
 
 def permutations(my_list):
