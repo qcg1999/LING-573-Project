@@ -4,7 +4,8 @@ from features.topic_clusters import find_topic_clusters
 from features.content_realization import *
 from features.features_from_doc import *
 from algorithms.textrank import textrank
-from algorithms.entity_grid import entity_grid_order
+from algorithms.entity_grid import *
+from algorithms.traveling_salesman import order
 import algorithms.SummaryGenerator
 import os
 import pickle
@@ -52,12 +53,14 @@ def main():
 			data[index] = (sentences, feature_vectors)
 
 		ranked_sentences = textrank(feature_vectors,sentences)
+
 		summary_sentences = truncate(ranked_sentences)
 
 #		entity_grid_order(ranked_sentences,args)
 
 		#information ordering step goes here
-		
+		summary_sentences = order(summary_sentences)
+
 		summary = realize(summary_sentences)
 		id1 = topic[:-1]
 		id2 = topic[-1]
