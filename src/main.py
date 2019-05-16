@@ -1,13 +1,12 @@
 from argparse import ArgumentParser
 from utils.logger import log_info
 from features.topic_clusters import find_topic_clusters
-from features.content_realization import realize
-from features.content_realization import realize2
+from features.content_realization import *
 from features.features_from_doc import *
 from algorithms.textrank import textrank
 from algorithms.entity_grid import * 
 #import algorithms.SummaryGenerator
-import os
+import os, operator
 import pickle
 
 parser = ArgumentParser()
@@ -43,7 +42,10 @@ def main():
 	else:
 		data = {}
 
-	for index,(topic, docs) in enumerate(topic_clusters.items()):
+	#put clusters in specific order for consistent behavior across environments
+	topic_clusters = sorted(topic_clusters.items(), key=operator.itemgetter(0))
+
+	for index,(topic, docs) in enumerate(topic_clusters):
 		log_info("Processing cluster %s..." % topic)
 
 		if args.load:
@@ -55,10 +57,10 @@ def main():
 		log_info("textrank starting...")
 		ranked_sentence_tups = textrank(feature_vectors,sentences)
 
-		ranked_sentences = [r[1] for r in ranked_sentence_tups]
-		
+		ranked_sentences = [r[1] for r in truncate(ranked_sentence_tups)]
+	
 		log_info("get_ordered_sentences starting..." )
-		ranked_sentences = get_ordered_sentences(ranked_sentences[0:4]) #only top 4 sents to be re-ordered
+		ranked_sentences = get_ordered_sentences(ranked_sentences) #only top 4 sents to be re-ordered
 
 		print("ranked_sentences\n", ranked_sentences)
 		
