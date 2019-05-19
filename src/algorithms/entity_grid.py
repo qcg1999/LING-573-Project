@@ -73,63 +73,163 @@ def _order_entity_grid(sentences, entities, subj_rank=1.0, obj_rank=0.5, other_r
 	return grid
 
 def order_entity_grid(sentences, stanford_home, model_path, parser_jar):
-	#sentences = [tup[1] for tup in sentence_tuples]
-	#sentences = [tup[1] for tup in sentence_tuples]
 	parser = Parser(stanford_home, model_path, parser_jar)
 	enriched_sentences, entities = parser(sentences)
 
-	print(enriched_sentences)
-	print(entities)
+	#print(enriched_sentences)
+	#print(entities)
 
 	grid = _order_entity_grid(enriched_sentences, entities)
 	return grid
 
-def get_ordered_sents_index(grid):
+def get_ordered_sents_indices_1(grid):
 	''' given an entity grid with rows being sentence index and columns being entities; 
 		argument grid is of DataFrame type in package of Pandas
 	'''
-	index = []  # a list of sentence index re-ordered by this method 
+	row_indices = []  # a list of sentence index re-ordered by this method 
 
+	row_num = grid.shape[0] # total number of rows
 	weight = {}  # a dictionary of calculated weight of entities 
-	for c in grid.columns:
-		weight[c] = sum(grid[c])
-
-	#print("weight: \n", weight)
-	entity_names = weight.keys();
-
-	accounted = [] # saves entities accounted for
+	column_list = list(grid.columns.values)
 	#loop through each column, and find one with the larget value
-	while len(accounted) < len(entity_names):
+	while len(row_indices) < row_num:	
+		remaining_rows = [x for x in range(row_num) if x not in row_indices]
+		#r_selected = max(remaining_rows) 
+		#(re)calc weights
+		for col in column_list:
+			weight[col] = 0  #(re)initialize
+			for row in remaining_rows:
+				weight[col] += grid.at[row, col]
+		#print("weight:\n", weight)
 
-		remained = {k:v for k, v in weight.items() if k not in accounted}
-		#print("remained:",remained)
-
-		#get the entity with the maximum weight
+		#find column with the highest weight
 		import operator
-		selected = max(remained.items(), key=operator.itemgetter(1))[0]
-		#print("selected: ", {k:v for k, v in weight.items() if k in selected})
+		c_selected = max(weight.items(), key=operator.itemgetter(1))[0]
+		#print("entity selected: ", {k:v for k, v in weight.items() if k in c_selected})
 
-		accounted.append(selected)
-		#print("accounted: ", accounted)
+		#find a sentence (row) with the highest weight on this column (entity)
+		r_selected = -1 
+		w_selected = 0
+		for row in remaining_rows:
+			if grid.at[row, c_selected] > w_selected:
+				r_selected = row	
+				w_selected = grid.at[row, c_selected]
+		
 
-		#select sentences associcated with this entity
-		sents_selected = grid[selected][grid[selected] > 0]
-		# sort by weight in sentences
-		# may consider other factors such as POS (S and O, for example)
-		sents_selected = sents_selected.sort_values(ascending=False)
+		if r_selected >= 0:
+			row_indices.append(r_selected)
+	
+	#print("sents_indices: \n", row_indices)
+	return row_indices
 
-		# get sents index
-		sents_index = list(sents_selected.keys())
-		#print("setence_selected:\n", sents_index)
+def get_ordered_sents_indices(grid):
+	''' given an entity grid with rows being sentence index and columns being entities; 
+		argument grid is of DataFrame type in package of Pandas
+	'''
+	row_indices = []  # a list of sentence index re-ordered by this method 
 
-		#index.append(sents_index)
-		index += [e for e in sents_index if e not in index]
+	row_num = grid.shape[0] # total number of rows
+	weight = {}  # a dictionary of calculated weight of entities 
+	column_list = list(grid.columns.values)
+	column_mentioned = []  # saves entities mentioned in selected rows
+	#loop through each column, and find one with the larget value
+	while len(row_indices) < row_num:	
+		#print("\n")
+		remaining_rows = [x for x in range(row_num) if x not in row_indices]
+		#r_selected = max(remaining_rows) 
 
-		#you could update weight here
+		#(re)calc weights for each column (entity) over remaining rows (sentences)
+		for col in column_list:
+			weight[col] = 0  #(re)initialize
+			for row in remaining_rows:
+				weight[col] += grid.at[row, col]
+		#print("weights:\n", weight)
 
-	return index
+		#find column with the highest weight
+		import operator
+		c_selected = max(weight.items(), key=operator.itemgetter(1))[0]
 
-def get_ordered_index(sentences):
+		#break ties on column(entity) selected
+		weight_max = max(weight.items(), key=operator.itemgetter(1))[1]
+		#print("weight_max: ", weight_max)
+		#find all colmns with max weight
+		col_candidates = []
+		for col in column_list:
+			if weight[col] == weight_max:
+				col_candidates.append(col)
+
+		#print("col_candidates:\n", col_candidates)	
+		#print("column_mentioned:\n", column_mentioned)	
+		#pick one from candidates
+		# by preceeding one
+		filtered_by_column_mentioned = []
+		if len(col_candidates) > 1:
+			filtered_by_column_mentioned = [c for c in col_candidates if c in column_mentioned]
+			#print("filtered_by_column_mentioned:\n", filtered_by_column_mentioned)
+
+		if len(filtered_by_column_mentioned) >= 1:
+			col_candidates = filtered_by_column_mentioned
+		
+		
+		# by POS-Subject (S)
+		# among all remaining rows (sentencies), which column (entity) is maximuly mentioned as a subject (S) 
+		'''
+		filtered_by_subject = []
+		subject_weight = {}
+		if len(col_candidates) > 1:
+			for col in column_list:
+				subject_weight[col] = 0
+				for row in remaining_rows:
+					if grid.at[row, col] == 1.0:
+						subject_weight[col] += grid.at[row, col]
+
+		print("subject_weight:\n", subject_weight)
+		'''
+		# by POS-Object (O)
+		# by POS-Others (X)
+
+		# by original order (default)
+		c_selected = col_candidates[0]
+		#print("c_selected: ", c_selected)
+
+		#find a sentence (row) with the highest weight on this column (entity)
+		r_selected = -1  #to be determined
+		w_selected = 0  #weight at row-level in the selected column
+		for row in remaining_rows:
+			if grid.at[row, c_selected] > w_selected:
+				w_selected = grid.at[row, c_selected]
+
+		# Find all matched rows (sent) that matches this weight 
+		candidate_rows = []
+		for row in remaining_rows:
+			if grid.at[row, c_selected] == w_selected:
+				candidate_rows.append(row)
+
+		#print("candidate_rows: \n", candidate_rows)
+
+		# more ordering logic to be added here
+		# default to the first among the original order
+		r_selected = candidate_rows[0]
+		#print("row selected: ", r_selected)
+
+		if r_selected >= 0:
+			row_indices.append(r_selected)
+
+			#Add all (S, O, X) in the selected row (sentence) to the mentioned colunm (entity) list
+			c_mentioned = []  #column (entity) mentioned in this row (sentence)
+			for col in column_list:
+				if grid.at[r_selected, col] > 0:
+					c_mentioned.append(col)		  #add to row(sentence-level) mentioned column(entity) list
+			
+			for col in c_mentioned:
+				if col not in  column_mentioned:
+					column_mentioned.append(col)  #add to overall mentioned column (entity) list
+	
+	#print("sents_indices: \n", row_indices)
+	return row_indices
+
+
+def get_ordered_indices(sentences):
 
 	stanford_home = '/NLP_TOOLS/parsers/stanford_parser/latest/'
 	model_path = '/NLP_TOOLS/parsers/stanford_parser/latest/englishPCFG.ser.gz'
@@ -138,28 +238,27 @@ def get_ordered_index(sentences):
 	grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
 	#print(grid)
 	try: 
-		index =  get_ordered_sents_index(grid)
+		indices =  get_ordered_sents_indices(grid)
 	except UnicodeDecodeError:
 		print("UnicodeDecodeError occured")
 	else:
 		print("")
 		
 	#index = [i for i in range(0, len(sentences))]
-	print("index of reordered sents: \n", index)
+	print("index of reordered sents: \n", indices)
 
-	return index
+	return indices
 
 def get_ordered_sentences(sentences):
 
-	index = get_ordered_index(sentences)
+	indices = get_ordered_indices(sentences)
 
-	sents = [sentences[i] for i in index]
+	sents = [sentences[i] for i in indices]
 
 	return sents 
 
 if __name__ == "__main__":
 
-	#import pdb; pdb.set_trace()
 
 	stanford_home = '/NLP_TOOLS/parsers/stanford_parser/latest/'
 	model_path = '/NLP_TOOLS/parsers/stanford_parser/latest/englishPCFG.ser.gz'
@@ -168,19 +267,25 @@ if __name__ == "__main__":
 #	sentences = ["Bob gave Alice a pizza.", 
 #				"Alice was happy with Jim."]
 
-	sentences = ["Bob returned a book to the library", "The book was over due", 
-				"Bob was not happy.", "It was a rainy day"]
+	sentences = [
+		"It was a rainy day",
+		"Bob returned a book to the library", 
+		"The book was over due", 
+		"Bob was not happy", 
+	]
+
 
 	#parser = Parser(stanford_home, model_path, parser_jar)
 	#sentences, entities = parser(sentences)
 
-	grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
+	#grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
 	#print(grid)
-	index =  get_ordered_sents_index(grid)
-	print("index: ", index)
 
-	print("sentence ordered: \n")
-	for i in index:
-		print("{0}\n".format(sentences[i]))
+	#import pdb; pdb.set_trace()
+	print("input sentences: \n", sentences)
+
+	sents =  get_ordered_sentences(sentences)
+
+	print("reordered sentences: \n", sents)
 
 #eof
