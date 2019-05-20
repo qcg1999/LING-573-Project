@@ -63,7 +63,7 @@ def main():
 		ranked_sentences = [r[1] for r in truncate(ranked_sentence_tups)]
 	
 		log_info("get_ordered_sentences starting..." )
-		ranked_sentences = get_ordered_sentences(ranked_sentences) #only top 4 sents to be re-ordered
+		ranked_sentences = get_ordered_sentences(ranked_sentences)
 
 		print("ranked_sentences\n", ranked_sentences)
 		
