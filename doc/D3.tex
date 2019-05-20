@@ -1,0 +1,190 @@
+%
+% File acl2014.tex
+%
+% Contact: koller@ling.uni-potsdam.de, yusuke@nii.ac.jp
+%%
+%% Based on the style files for ACL-2013, which were, in turn,
+%% Based on the style files for ACL-2012, which were, in turn,
+%% based on the style files for ACL-2011, which were, in turn, 
+%% based on the style files for ACL-2010, which were, in turn, 
+%% based on the style files for ACL-IJCNLP-2009, which were, in turn,
+%% based on the style files for EACL-2009 and IJCNLP-2008...
+
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt]{article}
+\usepackage{acl2014}
+\usepackage{times}
+\usepackage{url}
+\usepackage{latexsym}
+\usepackage{graphicx}
+
+
+%\setlength\titlebox{5cm}
+
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+
+\title{TextRank for Multi-Document Summarization}
+
+\author{Emma Bateman \\
+	{\tt ebateman@uw.edu} \\\And
+	John Dodson \\
+	{\tt jrdodson@uw.edu} \\\And
+	Charlie Guo \\
+	{\tt qcg@uw.edu}
+}
+
+\date{}
+
+\begin{document}
+	\maketitle
+	\begin{abstract}
+		We describe an unsupervised multi-document summarization system using TextRank, a graph-based algorithm for ranking salient sentences in a corpus of text documents. The most salient sentences are selected and then re-ordered using a local coherence algorithm for modeling entity distributions across the input texts. The system is divided into four components for selecting content, generating feature representations, ranking, and ordering.
+	\end{abstract}
+	
+	\section{Introduction}
+	
+	Multi-document summarization systems seek to aggregate collections of text documents and condense their content to provide cohesive summaries. Traditional approaches to summarization fall into two distinct categories: abstractive and extractive. Abstractive techniques are categorized based on their ability to generate novel summary content, in contrast with extractive approaches which select significant content directly from the source documents. In this work, we present an unsupervised system for extractive multi-document summarization over a benchmark dataset. The system is centered around the TextRank algorithm, which is a graph-based technique to identify and rank the most salient sentences in the input documents. We evaluate our system on the AQUAINT and AQUAINT-2 corpora, with average ROUGE-1 and ROUGE-2 F-scores of $0.26093$ and $0.06952$, respectively. 
+	
+	This report is structured as follows: Section 2 provides an overview of our system and its components, including a description of the AQUAINT dataset; section 3 details our approach to generating summaries using TextRank and entity-grid representations; section 4 presents result metrics; section 5 is a discussion of the approach and details potential improvements to the baseline system; section 6 concludes.
+	
+	\section{System Overview}
+	The system is divided into three primary components: a content selector, a ranker, and a sentence ordering algorithm. The content selector is responsible for ingesting a schema file which details one or more document clusters in the AQUAINT datasets. The selector identifies which documents belong together in a cluster and then ingests those documents as plain text. The system extracts feature vectors from each sentence by computing word frequencies. The feature vectors are given as input to the ranking algorithm which runs TextRank to sort vectors by salience. Ranked sentences undergo deduplication and the system selects the top-K salient sentences as input to an entity-based representation mechanism which is used to model coherence and improve human readability.
+	
+	\subsection{Architecture}
+	\begin{figure}
+		\includegraphics[width=\linewidth]{arch.PNG}
+		\caption{Multi-document summarization system architecture}
+		\label{fig:arch}
+	\end{figure}
+	
+	Figure \ref{fig:arch} provides an illustration of the existing system architecture.
+	
+	\subsection{AQUAINT Dataset}
+	We use the AQUAINT (Advanced Question-Answering for Intelligence) and AQUAINT-2 corpora to provide input to our system. Both datasets are composed of English newswire texts. For the multi-document summarization task, we leverage a corresponding schema file which defines one or more document-topic clusters. 
+	
+	\section{Approach}
+	
+	This section details the main components of the working system.
+	
+	\subsection{Content Selection}
+	The ingest processor for the system consumes one or more documents associated with a cluster identifier. These SGML documents are converted to plain text and represented as a single monolithic text string. After ingest is complete, the system will maintain one text representation per document cluster.
+	
+	The system uses BeautifulSoup to perform most of its SGML and XML parsing. For a given input file, the ingest processor identifies clusters and their associated documents by finding document IDs which correspond to AQUAINT SGML files. The system then loads the corresponding SGML files and pefrorms traversal using BeautifulSoup to find the appropriate blocks of text.
+	\subsubsection{Feature Vectors}
+	The feature extraction component takes the plain text representation and tokenizes it into individual sentences using Python's Natural Language Toolkit (NLTK). NLTK is used to remove common stopwords from each sentence. Feature vectors are generated in two steps: firstly, the component identifies a comprehensive vocabulary for the cluster; and secondly, a frequency vector is created based on the token frequencies in the given sentence. 
+	
+	The output of this component is an $N$ x $V$ matrix, where $N$ is the total number of sentences in the cluster and $V$ is the size of the vocabulary. 
+	\subsubsection{TextRank}
+	Our system uses TextRank to compute saliency scores for each sentence in the cluster and subsequently rank them according to significance. The TextRank algorithm constructs a graphical representation of textual features, where a given textual feature is represented as a vertex in the graph. The algorithm assigns a significance score to each vertex based on inbound edge weighting.
+	
+	The authors of the TextRank algorithm formally define a graph as a tuple $G = (V,E)$, where $V = \{v_1, v_2, ... v_n\}$ is the set of vertices in the graph and $E$ is a set of edges and a subset of $V$ x $V$. TextRank is inspired by PageRank and computes the score for some vertex $V_i$ similarly to the original algorithm:
+	\begin{center}
+		$S(V_i) = (1 - d) + d * \sum_{j \in In(V_i)} \frac{1}{|Out(V_j)|}S(V_j)$
+	\end{center}
+	$In(V_i)$ represents all inbound connections to vertex $V_i$, and $Out(V_j)$ represents outbound connections from vertex $V_j$. The authors use $d$ as a damping factor set between $0$ and $1$, which effectively biases the calculation. The original PageRank algorithm defaults this factor to $0.85$, and in our system we maintain this defaulted value.
+	
+	In applying TextRank to sentence processing, we compute a pairwise similarity matrix of size $N$ x $N$, where $N$ is the total number of sentences in the cluster. The similarity between $N_i$ and $N_j$ becomes the edge weight which connects those two vertices in the graph. We use cosine similarity as our distance measurement.
+	
+	After the TextRank algorithm converges, the algorithm returns the top K sentences as the cluster summary. Each summary contains 100 words maximum. The system maintains a 
+	reference to the original sentences, and uses the original text as output.
+	
+	\subsection{Information Ordering}
+	The system uses an entity-based modeling approach to improve summary coherence and provide a more logical ordering of the sentences in each summary. Our approach is inspired by the entity grid mechanism introduced in Barzilay and Lapata 2008, wherein the authors describe a local coherence algorithm centered around entity transitions. Our algorithm models the distribution of entities across the top outputs of TextRank, which means the input data is fundamentally small. We make the assumption that the input sentences naturally contain local coherence after applying TextRank. 
+	
+	\subsubsection{Extracting Grammatical Roles}
+	The authors of the original algorithm exploit several factors in their entity representations, namely, coreference resolution, grammatical roles, and saliency. Our system only uses grammatical function in determining entity types. We use the Stanford CoreNLP toolkit to generate dependency parses over each input sentence. Subject and object relations are extracted from the parse tree and used to model entity transitions. We provide weights for entities with subject, object, and alternate relation categories.
+	
+	\subsubsection{Entity Grid Representation}
+	Following the conventions established in Barzilay and Lapata 2008, we use the grammatical roles described in Section 3.2.1 to denote types of discourse entities. After generating dependency parses and compiling the set of unique entities in the input corpus, we compile a table representation of size $N$ x $M$, where $N$ is the total number of sentences in the input corpus and $M$ is the total number of unique entities extracted from that corpus. In our system $N$ is reasonably small.
+	
+	The entity grid is populated with weight values corresponding to the grammatical function of an entity in a given sentence, where a table entry $E_{i,j}$ is weighted depending on the grammatical role of entity $j$ in sentence $i$. We assign 1.0 to subject, 0.5 to object, and 0.1 to others so that subject entities weighted more than others. We calculate total entity weight over all sentences.
+	
+	
+	\subsubsection{Entity Grid Ranking}
+	In entity ranking, the system first identifies an entity with the highest total weight, then selects a sentence with the highest individual weight. To select next sentence, the system recalculates total entity weight without the selected ones. 
+	
+	\section{Results}
+	
+	44 summaries have been generated and evaluated with ROUGE. Table 1 lists the average ROUGE-1 and ROUGE-2 metrics.
+	
+	\begin{table}[ht]
+		\caption{Base Results} 
+		\centering
+		\begin{tabular}{r c c}
+			\hline
+			Evaluation Metrics & ROUGE-1 & ROUGE-2 \\
+			\hline
+			TextRank + EntityRank  & 0.20618 & 0.04979 \\			
+			\hline
+			TextRank          & 0.21709 & 0.05453 \\
+			\hline
+			Baseline          & 0.22170 & 0.05614 \\
+			\hline
+		\end{tabular}
+	\end{table}
+	
+	\section{Discussion}
+	
+	Many of the errors in our generated summaries have to do with coherence and information ordering, as one would expect. One particularly common error is the placement of pronouns before or in the absence of an antecedent -- 8 of the 44 summaries contain this error. In the following example, "he" is used four times before a possible antecedent appears.\\
+	
+	\begin{quote}
+		The Ten Commandments monument does not, he said.\\
+		By contrast, the Ten Commandments are not just a religious symbol, he said.\\
+		"The Ten Commandments have undeniable religious significance," he said.\\
+		The message of the Ten Commandments was deeply religious he said: "All of these are God's commands to his people."\\
+		Scalia denounced the idea of "watering down" the religious message of the Ten Commandments, which he said was "government derives its authority from God," and suggested that it would be a "Pyrrhic victory" if Texas won on those grounds.
+	\end{quote}
+	
+	Redundancy is also a major issue for our system. Not only are concepts frequently repeated, 7 of the 44 summaries include sentences that are identical or nearly identical. One summary has the same sentence 3 times:\\
+	
+	\begin{quote}
+		"The nation deserves and I will select a Supreme Court justice that Americans can be proud of," Bush said.\\
+		"The nation deserves and I will select a Supreme Court Justice that Americans can be proud of," Bush said.\\
+		"The nation deserves and I will select a Supreme Court justice that Americans can be proud of," Bush said.\\
+		Sandra Day O'Connor, the first  woman ever appointed to the US Supreme Court, said Friday that she is retiring, giving US president George W. Bush his first  opportunity to appoint a justice.
+	\end{quote}
+	
+	It is easy to see why the system produces such redundancies. If multiple articles use the same quote or same turn of phrase, the two sentences from the two articles will then have very high similarity, boosting one another's saliency scores and causing one another to be selected.
+	
+	High on our priority list going forward will be the implementation of an anti-redundancy measure.
+	
+	
+	\section{Conclusion}
+	We have described an unsupervised system for generating single summaries over multiple documents. The system generates feature vectors per sentence by computing word frequencies, and then provides those frequency vectors as input to the TextRank algorithm. The algorithm is able to identify significant lines of text in a single pass. 
+	
+	We then pipe line the result from TextRank with Entity Grid ranking and ordering logic in order to improve cohesion and coherence. The Entity Grid logic may have improved cohesion and coherence, R-1 metrics suffered a little bit.
+	
+	We take the top K sentences as the corresponding summary, up to 100 words max per summary.
+	
+	% include your own bib file like this:
+	%\bibliographystyle{acl}
+	%\bibliography{acl2014}
+	
+	\begin{thebibliography}{}
+		
+		\bibitem{textrank04}
+		Rada Mihalcea and Paul Tarau,
+		\textit{TextRank: Bringing Order into Texts},
+		Proceedings of the 2004 Conference on Empirical Methods in Natural Language Processing,
+		2004.
+		
+		\bibitem{entitygrid08}
+		Regina Barzilay and Mirella Lapata,
+		\textit{Modeling Local Coherence: An Entity-Based Approach}
+		Computational Linguistics, 
+		2008
+		
+		\bibitem{corenlp}
+		Christopher Manning, Mihai Surdeanu, John Bauer, Jenny Finkel, Steven Bethard, and David McClosky,
+		\textit{The Stanford CoreNLP Natural Language Processing Toolkit},
+		Proceedings of 52nd Annual Meeting of the Association for Computational Linguistics: System Demonstrations
+	\end{thebibliography}
+	
+\end{document}

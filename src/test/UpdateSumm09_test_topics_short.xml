@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE TACtaskdata [
+
+<!-- ======================================================================
+      TAC 2009 Update Summarization task data definition
+
+      Written 2009-05-12 by Hoa Dang <hoa.dang@nist.gov>
+     ====================================================================== -->
+
+    <!ELEMENT TACtaskdata  (topic+)           >
+    <!ELEMENT topic       (title, narrative, docsetA, docsetB) >
+    <!ELEMENT title       (#PCDATA)           >
+    <!ELEMENT narrative   (#PCDATA)           >
+    <!ELEMENT docsetA     (doc+)              >
+    <!ELEMENT docsetB     (doc+)              >
+    <!ELEMENT doc          EMPTY              >		       
+
+    <!ATTLIST TACtaskdata
+                      year    CDATA              #REQUIRED
+		      track   (SUMMARIZATION)    #REQUIRED
+                      task    (UPDATE)           #REQUIRED
+		      dataset (SAMPLE|TEST)             #REQUIRED >
+
+    <!ATTLIST topic  id      ID    #REQUIRED >
+
+    <!ATTLIST docsetA  id    ID    #REQUIRED >
+
+    <!ATTLIST docsetB  id    ID    #REQUIRED >
+
+    <!ATTLIST doc      id    CDATA #REQUIRED >   
+
+<!-- ====================================================================== -->
+]>
+
+<TACtaskdata year="2009" track="SUMMARIZATION" task="UPDATE"  dataset="TEST">
+
+
+<topic id = "D0911C">
+
+	<title> Bobby Fischer </title>
+
+	<narrative>
+		Describe efforts to secure asylum in Iceland for chess legend Bobby Fischer.
+	</narrative>
+
+	<docsetA id = "D0911C-A">
+		<doc id = "AFP_ENG_20050316.0102" />
+		<doc id = "APW_ENG_20050316.0582" />
+		<doc id = "APW_ENG_20050316.1103" />
+		<doc id = "APW_ENG_20050317.0768" />
+		<doc id = "APW_ENG_20050318.0720" />
+		<doc id = "APW_ENG_20050319.0012" />
+		<doc id = "NYT_ENG_20050321.0074" />
+		<doc id = "NYT_ENG_20050321.0136" />
+		<doc id = "AFP_ENG_20050321.0502" />
+		<doc id = "APW_ENG_20050321.0844" />
+	</docsetA>
+
+	<docsetB id = "D0911C-B">
+		<doc id = "AFP_ENG_20050322.0004" />
+		<doc id = "NYT_ENG_20050322.0023" />
+		<doc id = "AFP_ENG_20050322.0060" />
+		<doc id = "APW_ENG_20050322.0174" />
+		<doc id = "AFP_ENG_20050322.0675" />
+		<doc id = "APW_ENG_20050322.0678" />
+		<doc id = "APW_ENG_20050322.0960" />
+		<doc id = "AFP_ENG_20050323.0074" />
+		<doc id = "LTW_ENG_20050323.0083" />
+		<doc id = "LTW_ENG_20050323.0092" />
+	</docsetB>
+
+</topic>
+
+<topic id = "D0929E">
+
+	<title> Hurricane Rita </title>
+
+	<narrative>
+		Describe preparations for Hurricane Rita and estimates of its strength.
+	</narrative>
+
+	<docsetA id = "D0929E-A">
+		<doc id = "XIN_ENG_20050919.0201" />
+		<doc id = "NYT_ENG_20050920.0246" />
+		<doc id = "AFP_ENG_20050920.0413" />
+		<doc id = "AFP_ENG_20050920.0534" />
+		<doc id = "AFP_ENG_20050920.0545" />
+		<doc id = "AFP_ENG_20050920.0561" />
+		<doc id = "AFP_ENG_20050920.0614" />
+		<doc id = "AFP_ENG_20050920.0630" />
+		<doc id = "AFP_ENG_20050920.0633" />
+		<doc id = "AFP_ENG_20050920.0664" />
+	</docsetA>
+
+	<docsetB id = "D0929E-B">
+		<doc id = "AFP_ENG_20050921.0010" />
+		<doc id = "AFP_ENG_20050921.0045" />
+		<doc id = "AFP_ENG_20050921.0142" />
+		<doc id = "AFP_ENG_20050921.0191" />
+		<doc id = "XIN_ENG_20050921.0265" />
+		<doc id = "XIN_ENG_20050921.0296" />
+		<doc id = "AFP_ENG_20050921.0448" />
+		<doc id = "AFP_ENG_20050921.0489" />
+		<doc id = "AFP_ENG_20050921.0529" />
+		<doc id = "AFP_ENG_20050921.0612" />
+	</docsetB>
+
+</topic>
+
+<topic id = "D0934G">
+
+	<title> death of Yassar Arafat </title>
+
+	<narrative>
+		Discuss the final illness and death of Yassar Arafat and the funeral preparations.
+	</narrative>
+
+	<docsetA id = "D0934G-A">
+		<doc id = "NYT_ENG_20041108.0035" />
+		<doc id = "AFP_ENG_20041109.0160" />
+		<doc id = "XIN_ENG_20041109.0206" />
+		<doc id = "XIN_ENG_20041109.0219" />
+		<doc id = "APW_ENG_20041109.0244" />
+		<doc id = "XIN_ENG_20041109.0324" />
+		<doc id = "AFP_ENG_20041109.0393" />
+		<doc id = "AFP_ENG_20041109.0554" />
+		<doc id = "AFP_ENG_20041109.0601" />
+		<doc id = "AFP_ENG_20041109.0613" />
+	</docsetA>
+
+	<docsetB id = "D0934G-B">
+		<doc id = "XIN_ENG_20041110.0075" />
+		<doc id = "LTW_ENG_20041110.0100" />
+		<doc id = "AFP_ENG_20041110.0133" />
+		<doc id = "XIN_ENG_20041110.0136" />
+		<doc id = "XIN_ENG_20041110.0192" />
+		<doc id = "AFP_ENG_20041110.0252" />
+		<doc id = "XIN_ENG_20041110.0378" />
+		<doc id = "AFP_ENG_20041111.0014" />
+		<doc id = "AFP_ENG_20041111.0020" />
+		<doc id = "XIN_ENG_20041111.0056" />
+	</docsetB>
+
+</topic>
+
+</TACtaskdata>

@@ -1,9 +1,7 @@
 # jrdodson
 '''topic cluster utilities
 '''
-
 from bs4 import BeautifulSoup as soup
-from logger import log_warn
 import os, fnmatch
 
 def _resolve_paths(clusters,corpora):
@@ -30,11 +28,8 @@ def _resolve_paths(clusters,corpora):
 			if len(path) == 0:
 				path = preprocess_traverse(identifier,aquaint)
 			if len(path) != 1:
-				log_warn("Issue resolving document path %s ..." % identifier)
 				continue
 			absolute_paths += [(path[0],identifier)]
-		if len(absolute_paths) != len(cluster):
-			log_warn("Mismatch between raw/resolved clusters...")
 		resolved[topic] = absolute_paths
 	return resolved
 
@@ -50,7 +45,7 @@ def find_topic_clusters(schema,corpora,mode):
 
 	clusters = dict()
 	with open(schema,'r') as schema_handler:
-		tree = soup(schema_handler)
+		tree = soup(schema_handler,features='lxml')
 		for topic in tree.findAll("topic"):
 			topic_key = topic['id']
 			docs = retrieve_docs(topic)

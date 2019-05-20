@@ -1,13 +1,18 @@
 #!/usr/bin/env python
 import os
-from logger import *
+from utils.logger import *
 from bs4 import BeautifulSoup
+from argparse import ArgumentParser
 import xml.etree.ElementTree as ET
 import re   #regular expression
 
-#TRAIN_DATA_DIR = "C:/Users/Charlie/Documents/_UW/_Ling573_Summarization_Systems/Data/models/training/2009"
-TRAIN_DATA_DIR = "/dropbox/18-19/573/Data/models/training/2009"
-CONFIG_FILE_NAME = "rouge_run_D2.xml"
+parser = ArgumentParser()
+parser.add_argument("--directory", type=str, default="/dropbox/18-19/573/Data/models/training/2009")
+parser.add_argument("--config", type=str, default="rouge_run_D3.xml")
+args, unks = parser.parse_known_args()
+
+TRAIN_DATA_DIR = args.directory
+CONFIG_FILE_NAME = args.config
 
 def get_model_file_names(eval_id):
     #matched = [i for i in os.listdir(TRAIN_DATA_DIR) if re.search(eval_id, i)]
@@ -50,7 +55,7 @@ def create_config(src_dir, out_dir):
         p_txt = fn
         lines.append("<EVAL ID=\"{0}\">".format(eval_id))
         lines.append("<PEER-ROOT>" )
-        lines.append("../outputs/D2")
+        lines.append("../outputs/D3")
         lines.append("</PEER-ROOT>")
         lines.append("<MODEL-ROOT>")
         lines.append(TRAIN_DATA_DIR)
@@ -80,7 +85,7 @@ def create_config(src_dir, out_dir):
     
 def main():
 
-    create_config(src_dir ="../outputs/D2", out_dir="../config")
+    create_config(src_dir ="../outputs/D3", out_dir="../config")
     
 if __name__ == "__main__":
     main()

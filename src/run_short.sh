@@ -3,7 +3,7 @@
 if [ $# -ge 1 ]; then
 	SCHEMA=$1
 else
-	SCHEMA=/dropbox/18-19/573/Data/Documents/training/2009/UpdateSumm09_test_topics.xml
+	SCHEMA=./test/UpdateSumm09_test_topics_short.xml
 fi
 
 # clean up summary dest folder

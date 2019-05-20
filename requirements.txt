@@ -1,0 +1,6 @@
+numpy==1.15.0
+nltk==3.3
+spacy==2.0.13
+networkx==2.2
+beautifulsoup4
+lxml
