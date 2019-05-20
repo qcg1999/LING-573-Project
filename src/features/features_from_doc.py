@@ -5,7 +5,33 @@ from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 import numpy as np
 
-def get_features(docs):
+def get_sentences_aquaint2(docs):
+    sentences = []
+    for file_name, file_id in docs:
+        f = open(file_name)
+        soup = BeautifulSoup(f.read(), "lxml")
+        docs = soup.findAll("doc", id=file_id)
+        for doc in docs:
+            for p in doc.findAll("p"):
+                sentences += nltk.sent_tokenize(p.text)
+        f.close()
+    return sentences
+
+def get_sentences_aquaint1(docs):
+    print("running function")
+    sentences = []
+    for file_name, file_id in docs:
+        f = open(file_name)
+        soup = BeautifulSoup(f.read(), "lxml")
+        docs = soup.findAll("doc")
+        for doc in docs:
+            if file_id in doc.findAll("docno")[0].text:
+                for p in doc.findAll("p"):
+                    sentences += nltk.sent_tokenize(p.text)
+        f.close()
+    return sentences
+
+def get_features(docs, corpus):
     sentences = []
 
     vocab_dict = {}
@@ -19,13 +45,10 @@ def get_features(docs):
 #    soup = BeautifulSoup(f.read(), "lxml")
 #    return soup.find("doc", id=file_id).find('p').text.split()
 
-    for file_name, file_id in docs:
-        f = open(file_name)
-        soup = BeautifulSoup(f.read(), "lxml")
-        docs = soup.findAll("doc", id=file_id)
-        for doc in docs:
-            for p in doc.findAll("p"):
-                sentences += nltk.sent_tokenize(p.text)
+    if corpus == 1:
+        sentences = get_sentences_aquaint1(docs)
+    else:
+        sentences = get_sentences_aquaint2(docs)
 
     #first pass: get vocab and tokenize sentences
     processed_sentences = []

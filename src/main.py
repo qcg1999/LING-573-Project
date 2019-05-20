@@ -51,7 +51,10 @@ def main():
 		if args.load:
 			sentences, feature_vectors = data[index]
 		else:
-			sentences, feature_vectors = get_features(docs)
+			if args.aquaint in docs[0][0]:
+				sentences, feature_vectors = get_features(docs, 1)
+			else:
+				sentences, feature_vectors = get_features(docs, 2)
 			data[index] = (sentences, feature_vectors)
 
 		log_info("textrank starting...")
