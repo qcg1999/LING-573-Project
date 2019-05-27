@@ -5,6 +5,7 @@ from features.content_realization import *
 from features.features_from_doc import *
 from algorithms.textrank import textrank
 from algorithms.entity_grid import * 
+from algorithms.compressor import * 
 #import algorithms.SummaryGenerator
 import os, operator
 import pickle
@@ -65,10 +66,13 @@ def main():
 		log_info("get_ordered_sentences starting..." )
 		ranked_sentences = get_ordered_sentences(ranked_sentences)
 
+		log_info("compress sentences ..")
+		compressed_sents = compress(ranked_sentences)
+
 		print("ranked_sentences\n", ranked_sentences)
 		
 		log_info("realize starting...")
-		summary = realize2(ranked_sentences)
+		summary = realize2(compressed_sents)
 		print("summary: \n", summary)
 
 		summary_file = "{0}/{1}-A.M.100.{2}.0".format(args.output_dir, topic[:-1], topic[-1])
