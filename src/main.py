@@ -67,7 +67,7 @@ def main():
 		ranked_sentences = get_ordered_sentences(ranked_sentences)
 
 		log_info("compress sentences ..")
-		compressed_sents = compress(ranked_sentences)
+		compressed_sents = compress_list(ranked_sentences)
 
 		print("ranked_sentences\n", ranked_sentences)
 		
