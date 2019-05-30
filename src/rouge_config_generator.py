@@ -8,7 +8,7 @@ import re   #regular expression
 
 parser = ArgumentParser()
 parser.add_argument("--directory", type=str, default="/dropbox/18-19/573/Data/models/training/2009")
-parser.add_argument("--config", type=str, default="rouge_run_D3.xml")
+parser.add_argument("--config", type=str, default="rouge_run_D4.xml")
 args, unks = parser.parse_known_args()
 
 TRAIN_DATA_DIR = args.directory
@@ -55,7 +55,7 @@ def create_config(src_dir, out_dir):
         p_txt = fn
         lines.append("<EVAL ID=\"{0}\">".format(eval_id))
         lines.append("<PEER-ROOT>" )
-        lines.append("../outputs/D3")
+        lines.append("../outputs/D4")
         lines.append("</PEER-ROOT>")
         lines.append("<MODEL-ROOT>")
         lines.append(TRAIN_DATA_DIR)
@@ -85,7 +85,7 @@ def create_config(src_dir, out_dir):
     
 def main():
 
-    create_config(src_dir ="../outputs/D3", out_dir="../config")
+    create_config(src_dir ="../outputs/D4", out_dir="../config")
     
 if __name__ == "__main__":
     main()
