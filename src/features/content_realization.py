@@ -39,7 +39,6 @@ def _clean(sentence):
 	#fix punctuation
 	sentence = re.sub(r'\s([?.!,\'])', r'\1', sentence)
 	sentence = re.sub(r'(\$)\s', r'\1', sentence)
-	sentence = re.sub(' - ', '- ', sentence)
 	#Capitalize
 	sentence = sentence[0].upper() + sentence[1:]
 	return sentence

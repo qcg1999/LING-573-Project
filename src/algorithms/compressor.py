@@ -16,6 +16,9 @@ def compress_list(sentences):
 	for s in sentences:
 		c = compress(s)
 		compressed.append(c)
+		#stop at 100 words
+		if len((' '.join(compressed)).split(' ')) > 100:
+			break
 
 	return compressed
 
