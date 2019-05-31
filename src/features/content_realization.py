@@ -1,15 +1,16 @@
 '''Utilities for cleaning result sentences
 '''
+import re
 
-def truncate(ranked_sentence_tuples, max_words=100):
+def truncate(ranked_sentences, max_words=100):
 	summary_sentences = []
 	summary = ""
-	for sentence_tuple in ranked_sentence_tuples:
-		sentence = _clean(sentence_tuple[1])
+	for sentence in ranked_sentences:
+		sentence = _clean(sentence)
 		summary = "%s\n%s" % (summary, sentence)
 		if len(summary.split()) > max_words:
 			break
-		summary_sentences.append(sentence_tuple)
+		summary_sentences.append(sentence)
 	return summary_sentences
 
 def realize2(sentences, max_words=100):
@@ -35,4 +36,10 @@ def realize(ranked_sentence_tuples, max_words=100):
 
 def _clean(sentence):
 	sentence = sentence.replace('\n',' ').strip()
+	#fix punctuation
+	sentence = re.sub(r'\s([?.!,\'])', r'\1', sentence)
+	sentence = re.sub(r'(\$)\s', r'\1', sentence)
+	sentence = re.sub(' - ', '- ', sentence)
+	#Capitalize
+	sentence = sentence[0].upper() + sentence[1:]
 	return sentence

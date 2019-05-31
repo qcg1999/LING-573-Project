@@ -59,15 +59,18 @@ def main():
 			data[index] = (sentences, feature_vectors)
 
 		log_info("textrank starting...")
-		ranked_sentence_tups = textrank(feature_vectors,sentences)
+		ranked_sentences = [r[1] for r in textrank(feature_vectors,sentences)]
 
-		ranked_sentences = [r[1] for r in truncate(ranked_sentence_tups)]
-	
-		log_info("get_ordered_sentences starting..." )
-		ranked_sentences = get_ordered_sentences(ranked_sentences)
-
+		#compress
 		log_info("compress sentences ..")
 		compressed_sents = compress_list(ranked_sentences)
+
+		#truncate
+		ranked_sentences = truncate(ranked_sentences)
+	
+		#order
+		log_info("get_ordered_sentences starting..." )
+		ranked_sentences = get_ordered_sentences(ranked_sentences)
 
 		print("ranked_sentences\n", ranked_sentences)
 		
