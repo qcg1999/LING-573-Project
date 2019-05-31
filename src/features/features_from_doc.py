@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import nltk
 import re
+import gzip
 from nltk.tokenize import RegexpTokenizer
 from nltk.corpus import stopwords
 import numpy as np
@@ -17,8 +18,20 @@ def get_sentences_aquaint2(docs):
         f.close()
     return sentences
 
+def get_sentences_gigaword(docs):
+	sentences = []
+	for file_name, file_id in docs:
+		f = gzip.open(file_name)
+		soup = BeautifulSoup(f.read(), 'html.parser')
+		docs = soup.findAll('doc', id=file_id)
+		for doc in docs:
+			for p in doc.findAll('p'):
+				sentences += nltk.sent_tokenize(p.text)
+		f.close()
+		print("Finished one doc")
+	return sentences
+
 def get_sentences_aquaint1(docs):
-    print("running function")
     sentences = []
     for file_name, file_id in docs:
         f = open(file_name)
@@ -47,8 +60,10 @@ def get_features(docs, corpus):
 
     if corpus == 1:
         sentences = get_sentences_aquaint1(docs)
-    else:
+    elif corpus == 2:
         sentences = get_sentences_aquaint2(docs)
+    else:
+        sentences = get_sentences_gigaword(docs)
 
     #first pass: get vocab and tokenize sentences
     processed_sentences = []
