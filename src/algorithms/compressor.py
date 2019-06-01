@@ -17,9 +17,7 @@ def compress_sents(sentences):
 	for s in sentences:
 		c = compress_sent(s)
 		compressed.append(c)
-		#stop at 100 words
-		if len((' '.join(compressed)).split(' ')) > 100:
-			break
+
 	return compressed
 
 def compress_sent(sentence):
@@ -32,19 +30,25 @@ def compress_sent(sentence):
         model_path          = model_path,
         path_to_models_jar  = parser_jar
     )
-	#parse
-	s_parsed = parser.raw_parse(sentence)
-	#form a tree
-	for s in s_parsed:
-		#print("parse: ", str(s))
-		tree1 = tree.Tree.fromstring(str(s))
-		break
 	
-	positions, position_flags = get_position_and_flags(tree1)
-	#for k, v in position_flags.items():
-	#	print("{1}: {0}".format(k, v))
+	try:
+		#parse
+		s_parsed = parser.raw_parse(sentence)
+		#form a tree
+		for s in s_parsed:
+			#print("parse: ", str(s))
+			tree1 = tree.Tree.fromstring(str(s))
+			break
+	
+		positions, position_flags = get_position_and_flags(tree1)
+		#for k, v in position_flags.items():
+		#	print("{1}: {0}".format(k, v))
 
-	compressed = realize(tree1, positions, position_flags)
+		compressed = realize(tree1, positions, position_flags)
+	except UnicodeDecodeError:
+		compressed = sentence  # take the original
+	else:
+		compressed = sentence
 	#print ("compressed: ", compressed)
 
 	return compressed
@@ -138,16 +142,19 @@ def realize(tree, positions, position_flags):
 	sent = " ".join(leaf_list)
 
 	#remove space before a punctuation
-	for p in string.punctuation:
-		sent = sent.replace(' ' + p, p)
+	if (len(sent) >= 1):
+		for p in string.punctuation:
+			sent = sent.replace(' ' + p, p)
 
 	#strip off leading punctuation
-	if sent[0] in string.punctuation:
-		sent = sent[1:]
+	if (len(sent) >= 1):
+		if sent[0] in string.punctuation:
+			sent = sent[1:]
 
 	#strip off leading space
-	if sent[0] == ' ':
-		sent = sent[1:]
+	if (len(sent) >= 1):
+		if sent[0] == ' ':
+			sent = sent[1:]
 	
 	return sent 
 
