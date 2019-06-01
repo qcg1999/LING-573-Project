@@ -2,6 +2,7 @@ import nltk
 from nltk import tree
 from nltk.parse import stanford
 import os
+import string
 
 stanford_home 	= '/NLP_TOOLS/parsers/stanford_parser/latest/'
 model_path 		= '/NLP_TOOLS/parsers/stanford_parser/latest/englishPCFG.ser.gz'
@@ -9,24 +10,23 @@ parser_jar 		= '/NLP_TOOLS/parsers/stanford_parser/latest/stanford-parser.jar'
 
 os.environ['CLASSPATH'] = stanford_home
 
-def compress_list(sentences):
+def compress_sents(sentences):
 	''' compress a list of sentences
 	'''
 	compressed = []
 	for s in sentences:
-		c = compress(s)
+		c = compress_sent(s)
 		compressed.append(c)
 		#stop at 100 words
 		if len((' '.join(compressed)).split(' ')) > 100:
 			break
-
 	return compressed
 
-def compress(sentence):
+def compress_sent(sentence):
 	''' compress a given sentence (as a string of words)
 		return a compressed sentence (also as a string of words)
 	'''	
-	print("sentence: ", sentence)
+	print("\ncompressing sentence: ", sentence)
 
 	parser = stanford.StanfordParser (
         model_path          = model_path,
@@ -36,7 +36,7 @@ def compress(sentence):
 	s_parsed = parser.raw_parse(sentence)
 	#form a tree
 	for s in s_parsed:
-		print("parse: ", str(s))
+		#print("parse: ", str(s))
 		tree1 = tree.Tree.fromstring(str(s))
 		break
 	
@@ -116,7 +116,7 @@ def get_position_and_flags(tree):
 	return positions, position_flags
 
 def find_child_positions(pos, positions):
-	''' find all child postions in 'positions' given postion 'pos'
+	''' find all child postions in 'positions' for a given position 'pos'
 	'''
 	child_positions = []
 	for p in positions:
@@ -135,8 +135,21 @@ def realize(tree, positions, position_flags):
 		if type(tree[p]) == str:
 			leaf_list.append(tree[p])
 
-	#print ("leaf_list: ", leaf_list)
-	return " ".join(leaf_list) 
+	sent = " ".join(leaf_list)
+
+	#remove space before a punctuation
+	for p in string.punctuation:
+		sent = sent.replace(' ' + p, p)
+
+	#strip off leading punctuation
+	if sent[0] in string.punctuation:
+		sent = sent[1:]
+
+	#strip off leading space
+	if sent[0] == ' ':
+		sent = sent[1:]
+	
+	return sent 
 
 def is_leading(t1, t2):
 	''' if t1 is a leading tuple of t2, return true.
@@ -165,7 +178,7 @@ if __name__ == "__main__":
 
 
 	print("input sentence: ", s_1)
-	compressed_sent = compress(s_1)
+	compressed_sent = compress_sent(s_1)
 	print("compressed: ", compressed_sent)
 
 	sentences_list_02 = [
@@ -178,11 +191,11 @@ if __name__ == "__main__":
 	for s in sentences_list_02:
 		print("\n")
 		print("input sentence: ", s)
-		compressed = compress(s)
+		compressed = compress_sent(s)
 		print("compressed:     ", compressed) 
 	'''
 
-	compressed_list_02 = compress_list(sentences_list_02)
+	compressed_list_02 = compress_sents(sentences_list_02)
 	for s in compressed_list_02:
 		print("\n")
 		print("compressed:     ", s)
