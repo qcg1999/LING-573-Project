@@ -22,18 +22,22 @@ if __name__ == "__main__":
 		path_to_models_jar	=parser_jar
 	)
 
-	#parse single sentence
-	parsed_sent = parser.raw_parse("I came to Richmond in 1998.")
-	for ps in parsed_sent:
-		print("ps:\n", ps)
+	#syntax parser
+	sent = "I came to Richmond in 1998."
+	print ("sent:", sent)
+	parse_tree = parser.raw_parse(sent)
+	for t in parse_tree:
+		print("syntax parse tree\n", t)
 
 	#parse multiple sentence
-	parsed_sents = parser.raw_parse_sents(sentences, verbose=True)
-	for ps_list in parsed_sents:
+	for s in sentences:
+		print("sent: ", s)
+	parse_trees = parser.raw_parse_sents(sentences, verbose=True)
+	for ps_list in parse_trees:
 		for ps in ps_list:
-			print("ps:\n", ps)
+			print("syntax parse tree:\n", ps)
 
-	'''
+	'''	
 	dep_parser = stanford.StanfordDependencyParser(
 		model_path			=model_path, 
 		path_to_models_jar	=parser_jar
@@ -43,6 +47,4 @@ if __name__ == "__main__":
 
 	print("parse_tree:\n", parse_tree) 
 	'''
-	
-
 #eof
