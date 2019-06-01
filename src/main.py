@@ -6,7 +6,6 @@ from features.features_from_doc import *
 from algorithms.textrank import textrank
 from algorithms.entity_grid import * 
 from algorithms.compressor import * 
-#import algorithms.SummaryGenerator
 import os, operator
 import pickle
 
@@ -66,7 +65,7 @@ def main():
 
 		#compress
 		log_info("compress sentences ..")
-		compressed_sents = compress_list(ranked_sentences)
+		compressed_sents = compress_sents(ranked_sentences)
 
 		#truncate
 		ranked_sentences = truncate(ranked_sentences)
@@ -74,17 +73,12 @@ def main():
 		#order
 		log_info("get_ordered_sentences starting..." )
 		ranked_sentences = get_ordered_sentences(ranked_sentences)
-
-		print("ranked_sentences\n", ranked_sentences)
 		
 		log_info("realize starting...")
 		summary = realize2(compressed_sents)
-		print("summary: \n", summary)
-
-		summary_file = "{0}/{1}-A.M.100.{2}.0".format(args.output_dir, topic[:-1], topic[-1])
-
+		
 		log_info("creating summary file {0}".format(summary_file) )
-
+		summary_file = "{0}/{1}-A.M.100.{2}.0".format(args.output_dir, topic[:-1], topic[-1])
 		f = open(summary_file, "w+")
 		f.write(summary)
 		f.close()
