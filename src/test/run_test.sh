@@ -7,13 +7,10 @@ export PYTHONPATH=../.:../test:$PYTHONPATH
 #$PYTHON_CMD entity_grid_test.py
 #$PYTHON_CMD -m unittest entity_grid_test.entity_grid_test
 #$PYTHON_CMD -m unittest entity_grid_test.entity_grid_test.test_one_file_from_text_rank_full_list
-#$PYTHON_CMD -m unittest entity_grid_test.entity_grid_test.test_all_files_from_text_rank_full_list
-$PYTHON_CMD -m unittest compressor_test.compressor_test.test_one_file_from_text_rank_full_list
+#$PYTHON_CMD -m unittest compressor_test.compressor_test.test_one_file_from_text_rank_full_list
+$PYTHON_CMD -m unittest compressor_test.compressor_test.test_all_files_from_text_rank_full_list
 
-### env setup
-#$PYTHON_CMD src/main.py --schema $1 --mode "train"
 
-### generate rouge config file
 #$PYTHON_CMD src/rouge_config_generator.py
 
 ### generate rouge evaluation
