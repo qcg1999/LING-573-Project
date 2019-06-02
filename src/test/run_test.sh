@@ -1,6 +1,7 @@
 #!/bin/bash
 
-export PYTHON_CMD=python3
+#export PYTHON_CMD=python3
+export PYTHON_CMD=/opt/python-3.6.3/bin/python3.6
 export PYTHONPATH=../.:../test:$PYTHONPATH
 #echo $PYTHONPATH
 #$PYTHON_CMD SummaryGeneratorUnitTest.py
@@ -8,7 +9,9 @@ export PYTHONPATH=../.:../test:$PYTHONPATH
 #$PYTHON_CMD -m unittest entity_grid_test.entity_grid_test
 #$PYTHON_CMD -m unittest entity_grid_test.entity_grid_test.test_one_file_from_text_rank_full_list
 #$PYTHON_CMD -m unittest compressor_test.compressor_test.test_one_file_from_text_rank_full_list
-$PYTHON_CMD -m unittest compressor_test.compressor_test.test_all_files_from_text_rank_full_list
+#$PYTHON_CMD -m unittest compressor_test.compressor_test.test_all_files_from_text_rank_full_list
+#$PYTHON_CMD -m unittest spacy_test.spacy_test.hi
+$PYTHON_CMD -m unittest spacy_test.spacy_test.identify_arafat
 
 
 #$PYTHON_CMD src/rouge_config_generator.py
