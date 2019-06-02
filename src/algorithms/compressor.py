@@ -17,10 +17,17 @@ def compress_sents(sentences):
 	for s in sentences:
 		c = compress_sent(s)
 		compressed.append(c)
+		#stop at 100 words
+		if len((' '.join(compressed)).split(' ')) > 100:
+			break
 
 	return compressed
 
-def compress_sent(sentence):
+def compress_sent(sent):
+	sent = compress_sent_tree(sent)
+	return sent
+
+def compress_sent_tree(sentence):
 	''' compress a given sentence (as a string of words)
 		return a compressed sentence (also as a string of words)
 	'''	
@@ -45,10 +52,9 @@ def compress_sent(sentence):
 		#	print("{1}: {0}".format(k, v))
 
 		compressed = realize(tree1, positions, position_flags)
-	except UnicodeDecodeError:
-		compressed = sentence  # take the original
-	else:
+	except:
 		compressed = sentence
+		
 	#print ("compressed: ", compressed)
 
 	return compressed
@@ -205,6 +211,7 @@ if __name__ == "__main__":
 	compressed_list_02 = compress_sents(sentences_list_02)
 	for s in compressed_list_02:
 		print("\n")
+		
 		print("compressed:     ", s)
 
 #eof
