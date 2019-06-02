@@ -29,7 +29,7 @@ args, unks = parser.parse_known_args()
 
 def main():	
 	log_info("Finding document clusters for %s mode..." % args.mode)
-	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2), args.mode)
+	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2, args.gigaword), args.mode)
 	log_info("Found %d document clusters." % len(topic_clusters))
 
 	log_info("Summarizing...")
