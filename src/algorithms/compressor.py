@@ -53,6 +53,7 @@ def compress_sent_tree(sentence):
 
 		compressed = realize(tree1, positions, position_flags)
 	except:
+		print("\nno compression performed duo to an error in parse. sentence: {0} \n".format(sentence))
 		compressed = sentence
 		
 	#print ("compressed: ", compressed)
