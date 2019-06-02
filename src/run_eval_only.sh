@@ -13,14 +13,13 @@ fi
 #done
 
 # generate summary
-export PYTHON_CMD=/opt/python-3.6.3/bin/python3.6
-#export PYTHON_CMD=python3
+export PYTHON_CMD=python3
 ### env setup
-$PYTHON_CMD main.py --schema $SCHEMA --mode "train"
-if [ $? -ne 0 ]; then
-	echo "main.py failed"
-	exit -1
-fi
+#$PYTHON_CMD main.py --schema $SCHEMA --mode "train"
+#if [ $? -ne 0 ]; then
+#	echo "main.py failed"
+#	exit -1
+#fi
 
 ### generate rouge config file
 $PYTHON_CMD rouge_config_generator.py
