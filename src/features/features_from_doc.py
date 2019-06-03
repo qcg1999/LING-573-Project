@@ -25,7 +25,7 @@ def get_sentences_gigaword(docs):
 	for file_name, file_id in docs:
 		log_info("Processing Gigaword cluster %s" % file_id)
 		f = gzip.open(file_name)
-		soup = BeautifulSoup(f.read(), 'html.parser')
+		soup = BeautifulSoup(f.read(), 'lxml')
 		docs = soup.findAll('doc', id=file_id)
 		for doc in docs:
 			for p in doc.findAll('p'):
