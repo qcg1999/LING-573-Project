@@ -3,6 +3,10 @@ from nltk import tree
 from nltk.parse import stanford
 import os
 import string
+import pickle
+import numpy as np
+
+from algorithms.compress_utils import *
 
 stanford_home 	= '/NLP_TOOLS/parsers/stanford_parser/latest/'
 model_path 		= '/NLP_TOOLS/parsers/stanford_parser/latest/englishPCFG.ser.gz'
@@ -10,12 +14,18 @@ parser_jar 		= '/NLP_TOOLS/parsers/stanford_parser/latest/stanford-parser.jar'
 
 os.environ['CLASSPATH'] = stanford_home
 
+MODEL_PATH = "compression_model"
+model = None
+
 def compress_sents(sentences):
 	''' compress a list of sentences
 	'''
 	compressed = []
 	for s in sentences:
-		c = compress_sent(s)
+		if model == None:
+			c = compress_sent_rule_based(s)
+		else:
+			c = compress_sent_maxent(s)
 		compressed.append(c)
 		#stop at 100 words
 		if len((' '.join(compressed)).split(' ')) > 100:
@@ -23,16 +33,94 @@ def compress_sents(sentences):
 
 	return compressed
 
-def compress_sent(sent):
+def init_maxent_model():
+	global model, tokenizer
+
+	f = open(MODEL_PATH, 'rb')
+	model = pickle.load(f)
+	f.close()
+
+
+#metric to be maximized
+def score(t, labels, tokens):
+	#remove leaf nodes
+	labels = [l for l in labels if type(l) == int]
+	#turn into numpy array
+	labels = np.array(labels)
+
+	#get features and predictions
+	features = get_features_recursive(t, tokens)
+	predictions = model.predict_proba(features).transpose()[1]
+
+	#score
+	difference = np.absolute(labels - predictions).sum()
+	return labels.shape[0] - difference
+
+#implement beam search
+def beam_search(t, tokens, N=5):
+	#stopping condition: parent of leaf
+	if not type(t[0]) == tree.Tree:
+		hypotheses = [[0, 0.0],[1, 1.0]]
+		tuples = [(score(t, h, tokens), h) for h in hypotheses]
+		tuples.sort()
+		return [tup[1] for tup in tuples[-N:]]
+
+	hypotheses = []
+
+	#delete node?
+	hypotheses.append([0 for i in range(count_nodes(t))])
+
+	#keep node?
+	hypotheses = [[1]]
+	for hypothesis_list in [beam_search(child, tokens, N) for child in t]:
+		new_hypotheses = []
+		for h in hypothesis_list:
+			for h_stem in hypotheses:
+				new_hypotheses.append(h_stem+h)
+		hypotheses = new_hypotheses
+
+	tuples = [(score(t, h, tokens), h) for h in hypotheses]
+	tuples.sort()
+	return [tup[1] for tup in tuples[-N:]]
+
+def compress_sent_maxent(sentence):
+	try:
+		parser = stanford.StanfordParser (
+       		model_path          = model_path,
+        	path_to_models_jar  = parser_jar
+    		)
+		#parse
+		s_parsed = parser.raw_parse(sentence)
+		#form a tree
+		for s in s_parsed:
+			tree1 = tree.Tree.fromstring(str(s))
+			break
+
+		tokens = tree1.leaves()
+		N = 5 #beam search parameter
+		flags = beam_search(tree1, tokens, N)[N-1]
+
+		position_flags = {}
+		positions = tree1.treepositions()
+		idx = 0
+		for p in positions:
+			position_flags[p] = flags[idx]
+			idx += 1
+
+		compressed = realize(tree1, tree1.treepositions(), position_flags)
+	except:
+		compressed = sentence
+
+	return compressed
+
+def compress_sent_rule_based(sent):
 	sent = compress_sent_tree(sent)
 	return sent
 
 def compress_sent_tree(sentence):
 	''' compress a given sentence (as a string of words)
 		return a compressed sentence (also as a string of words)
-	'''	
-	print("\ncompressing sentence: ", sentence)
-
+	'''
 	parser = stanford.StanfordParser (
         model_path          = model_path,
         path_to_models_jar  = parser_jar

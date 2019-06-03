@@ -19,6 +19,7 @@ parser.add_argument("--output_dir", type=str, default='../outputs/D4')
 parser.add_argument("--mode", type=str, choices=['train','dev','eval'], default='train')
 parser.add_argument("--store", type=str, default=None)
 parser.add_argument("--load", type=str, default=None)
+parser.add_argument("--maxent", type=bool, default=1)
 
 # CoreNLP configs
 parser.add_argument("--stanford_home", type=str, default="/NLP_TOOLS/parsers/stanford_parser/latest")
@@ -29,7 +30,7 @@ args, unks = parser.parse_known_args()
 
 def main():	
 	log_info("Finding document clusters for %s mode..." % args.mode)
-	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2), args.mode)
+	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2, args.gigaword), args.mode)
 	log_info("Found %d document clusters." % len(topic_clusters))
 
 	log_info("Summarizing...")
@@ -43,6 +44,9 @@ def main():
 		read_file.close()
 	else:
 		data = {}
+
+	if args.maxent == 1:
+		init_maxent_model()
 
 	#put clusters in specific order for consistent behavior across environments
 	topic_clusters = sorted(topic_clusters.items(), key=operator.itemgetter(0))
