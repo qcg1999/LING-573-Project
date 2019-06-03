@@ -20,18 +20,28 @@ def get_sentences_aquaint2(docs):
     return sentences
 
 def get_sentences_gigaword(docs):
-	sentences = []
-	log_info("Processing Gigaword (this could take a while)")
-	for file_name, file_id in docs:
-		log_info("Processing Gigaword cluster %s" % file_id)
-		f = gzip.open(file_name)
-		soup = BeautifulSoup(f.read(), 'lxml')
-		docs = soup.findAll('doc', id=file_id)
-		for doc in docs:
-			for p in doc.findAll('p'):
-				sentences += nltk.sent_tokenize(p.text)
-		f.close()
-	return sentences
+    sentences = []
+    log_info("Processing Gigaword (this could take a while)")
+    for file_name, file_id in docs:
+        log_info("Processing Gigaword cluster %s" % file_id)
+        f = gzip.open(file_name)
+
+        #run bs only on relevant portion
+        doc_lines = []
+        line = str(f.readline())
+        while line.find(file_id) < 0:
+            line = str(f.readline())
+        while line.find('</DOC>') < 0:
+            doc_lines.append(line)
+            line = str(f.readline())
+
+        soup = BeautifulSoup(''.join(doc_lines), 'lxml')
+        docs = soup.findAll('doc', id=file_id)
+        for doc in docs:
+            for p in doc.findAll('p'):
+                sentences += nltk.sent_tokenize(p.text)
+        f.close()
+    return sentences
 
 def get_sentences_aquaint1(docs):
     sentences = []
