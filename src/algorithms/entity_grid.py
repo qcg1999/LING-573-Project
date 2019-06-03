@@ -10,6 +10,7 @@ class DependencyParser(GenericStanfordParser):
 		super(DependencyParser,self).__init__(*args,**kwargs)
 
 	def raw_parse_sents(self, sentences, verbose=False):
+		sents = []
 		results = []
 		cmd = [
 			self._MAIN_CLASS,
@@ -22,13 +23,14 @@ class DependencyParser(GenericStanfordParser):
 		for s in sentences:
 			try:
 				#s = bytes(s,'utf-8').decode('utf-8', 'ignore')
-				s = s.replace('é', 'e')
+				s = s.replace('é', 'e')  #temporary fix; 
 				results += [self._execute(cmd, s, verbose)]
+				sents.append(s)
 			except:
-				print("raw_parse_sents error on sentence: {0}".format(s))
+				#print("raw_parse_sents error on sentence: {0}".format(s))
 				continue
 			
-		return self._prepare_output(sentences, results)
+		return self._prepare_output(sents, results)
 
 	def _prepare_output(self, sentences, result):
 		assert len(result) == len(sentences), "Sentence/result mismatch"
@@ -74,7 +76,7 @@ def _order_entity_grid(sentences, entities, subj_rank=1.0, obj_rank=0.5, other_r
 			else:
 				grid.at[index,entity] = other_rank
 
-#	print("grid in _order_entity_grid:\n", grid)
+	#print("grid in _order_entity_grid:\n", grid)
 
 	return grid
 
@@ -245,7 +247,7 @@ def get_ordered_indices(sentences):
 	#print(grid)
 	indices =  get_ordered_sents_indices(grid)
 		
-#	print("index of reordered sents: \n", indices)
+	#print("index of reordered sents: \n", indices)
 
 	return indices
 
@@ -277,10 +279,10 @@ if __name__ == "__main__":
 	#grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
 	#print(grid)
 
-#	print("input sentences: \n", sentences)
+	#print("input sentences: \n", sentences)
 
 	sents =  get_ordered_sentences(sentences)
 
-#	print("reordered sentences: \n", sents)
+	#print("reordered sentences: \n", sents)
 
 #eof
