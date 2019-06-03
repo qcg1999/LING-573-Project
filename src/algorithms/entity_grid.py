@@ -74,7 +74,7 @@ def _order_entity_grid(sentences, entities, subj_rank=1.0, obj_rank=0.5, other_r
 			else:
 				grid.at[index,entity] = other_rank
 
-	print("grid in _order_entity_grid:\n", grid)
+#	print("grid in _order_entity_grid:\n", grid)
 
 	return grid
 
@@ -245,7 +245,7 @@ def get_ordered_indices(sentences):
 	#print(grid)
 	indices =  get_ordered_sents_indices(grid)
 		
-	print("index of reordered sents: \n", indices)
+#	print("index of reordered sents: \n", indices)
 
 	return indices
 
@@ -277,10 +277,10 @@ if __name__ == "__main__":
 	#grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
 	#print(grid)
 
-	print("input sentences: \n", sentences)
+#	print("input sentences: \n", sentences)
 
 	sents =  get_ordered_sentences(sentences)
 
-	print("reordered sentences: \n", sents)
+#	print("reordered sentences: \n", sents)
 
 #eof

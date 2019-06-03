@@ -78,10 +78,10 @@ def main():
 		#order
 		log_info("get_ordered_sentences starting..." )
 		sents = get_ordered_sentences(sents)
-		print("ranked_sentences\n", sents)
+#		print("ranked_sentences\n", sents)
 
 		#simplify person names
-		log_info("compress sentences ...")
+		log_info("simplify names ...")
 		sents = simplify_names(sents)
 		
 		
