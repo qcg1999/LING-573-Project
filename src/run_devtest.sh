@@ -7,7 +7,7 @@ else
 	#SCHEMA=/dropbox/18-19/573/Data/Documents/training/2009/UpdateSumm09_test_topics.xml #training
 	SCHEMA=/dropbox/18-19/573/Data/Documents/devtest/GuidedSumm10_test_topics.xml	#devtest
 	#SCHEMA=/dropbox/18-19/573/Data/Documents/evaltest/GuidedSumm11_test_topics.xml	#evaltest
-
+fi
 # generate summary
 export PYTHON_CMD=/opt/python-3.6.3/bin/python3.6
 #export PYTHON_CMD=python3
