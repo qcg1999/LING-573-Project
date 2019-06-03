@@ -59,7 +59,7 @@ def create_config(src_dir, out_dir):
         p_txt = fn
         lines.append("<EVAL ID=\"{0}\">".format(eval_id))
         lines.append("<PEER-ROOT>" )
-        lines.append("../outputs/D4")
+        lines.append("../outputs/{0}".format(SOURCE_DIR))
         lines.append("</PEER-ROOT>")
         lines.append("<MODEL-ROOT>")
         lines.append(TRAIN_DATA_DIR)
