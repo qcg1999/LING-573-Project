@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 from utils.logger import *
 from bs4 import BeautifulSoup
@@ -8,10 +9,14 @@ import re   #regular expression
 parser = ArgumentParser()
 parser.add_argument("--directory", type=str, default="/dropbox/18-19/573/Data/models/training/2009")
 parser.add_argument("--config", type=str, default="rouge_run_D4.xml")
+parser.add_argument("--source_dir", type=str, default="../outputs/D4")
+parser.add_argument("--config_dir", type=str, default="../config")
 args, unks = parser.parse_known_args()
 
 TRAIN_DATA_DIR = args.directory
 CONFIG_FILE_NAME = args.config
+SOURCE_DIR=args.source_dir
+OUT_DIR=args.config_dir
 
 def get_model_file_names(eval_id):
     #matched = [i for i in os.listdir(TRAIN_DATA_DIR) if re.search(eval_id, i)]
@@ -30,7 +35,7 @@ def create_config(src_dir, out_dir):
     
     #check existence of src_dir
     if not os.path.exists(src_dir):
-        log_warn("directory {0} does not exist".format(src_dir))
+        log_error("source directory {0} does not exist. exit with error.".format(src_dir))
         return
     
     #create out_dir folder if not existing
@@ -84,7 +89,7 @@ def create_config(src_dir, out_dir):
     
 def main():
 
-    create_config(src_dir ="../outputs/D4", out_dir="../config")
+    create_config(src_dir=SOURCE_DIR, out_dir=OUT_DIR)
     
 if __name__ == "__main__":
     main()
