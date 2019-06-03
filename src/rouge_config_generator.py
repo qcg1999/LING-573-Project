@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import os
 from utils.logger import *
 from bs4 import BeautifulSoup

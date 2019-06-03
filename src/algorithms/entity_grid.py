@@ -19,8 +19,14 @@ class DependencyParser(GenericStanfordParser):
 			"-sentences",
 			"newline",
 		]
-		for sentence in sentences:
-			results += [self._execute(cmd, sentence, verbose)]
+		for s in sentences:
+			try:
+				#s = bytes(s,'utf-8').decode('utf-8', 'ignore')
+				s = s.replace('é', 'e')
+				results += [self._execute(cmd, s, verbose)]
+			except:
+				print("raw_parse_sents error on sentence: {0}".format(s))
+				continue
 			
 		return self._prepare_output(sentences, results)
 
@@ -237,14 +243,8 @@ def get_ordered_indices(sentences):
 
 	grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
 	#print(grid)
-	try: 
-		indices =  get_ordered_sents_indices(grid)
-	except UnicodeDecodeError:
-		print("UnicodeDecodeError occured")
-	else:
-		print("")
+	indices =  get_ordered_sents_indices(grid)
 		
-	#index = [i for i in range(0, len(sentences))]
 	print("index of reordered sents: \n", indices)
 
 	return indices
@@ -274,14 +274,9 @@ if __name__ == "__main__":
 		"Bob was not happy", 
 	]
 
-
-	#parser = Parser(stanford_home, model_path, parser_jar)
-	#sentences, entities = parser(sentences)
-
 	#grid = order_entity_grid(sentences, stanford_home, model_path, parser_jar)
 	#print(grid)
 
-	#import pdb; pdb.set_trace()
 	print("input sentences: \n", sentences)
 
 	sents =  get_ordered_sentences(sentences)
