@@ -19,7 +19,7 @@ def _resolve_paths(clusters,corpora):
 			search = "%s_ENG" % search
 		return traverse(search,acquaint,ext="")
 
-	aquaint, aquaint2 = corpora
+	aquaint, aquaint2, gigaword = corpora
 	resolved = dict()
 	for topic, cluster in clusters.items():		
 		absolute_paths = []
@@ -28,7 +28,10 @@ def _resolve_paths(clusters,corpora):
 			if len(path) == 0:
 				path = preprocess_traverse(identifier,aquaint)
 			if len(path) != 1:
-				continue
+				path = traverse(doc.lower(), gigaword, ext='.gz')
+				if len(path) != 1:
+					print("Invalid")
+					continue
 			absolute_paths += [(path[0],identifier)]
 		resolved[topic] = absolute_paths
 	return resolved
