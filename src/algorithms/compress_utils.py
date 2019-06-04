@@ -2,6 +2,10 @@ from nltk import tree
 from nltk.corpus import stopwords
 import numpy as np
 
+DELETE = 0
+KEEP = 1
+PARTIAL = 1
+
 def get_pos_tags(t):
     tags = []
     if type(t) == tree.Tree:

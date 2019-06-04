@@ -4,6 +4,7 @@ from features.topic_clusters import find_topic_clusters
 from features.content_realization import *
 from features.features_from_doc import *
 from algorithms.textrank import textrank
+from algorithms.traveling_salesman import ts_order
 from algorithms.entity_grid import * 
 from algorithms.compressor import * 
 from algorithms.person_name_simplifier import *
@@ -19,7 +20,8 @@ parser.add_argument("--output_dir", type=str, default='../outputs/D4')
 parser.add_argument("--mode", type=str, choices=['train','dev','eval'], default='train')
 parser.add_argument("--store", type=str, default=None)
 parser.add_argument("--load", type=str, default=None)
-parser.add_argument("--maxent", type=bool, default=1)
+parser.add_argument("--maxent", type=str, default=None)
+parser.add_argument("--entity_grid", type=int, default=1)
 
 # CoreNLP configs
 parser.add_argument("--stanford_home", type=str, default="/NLP_TOOLS/parsers/stanford_parser/latest")
@@ -45,8 +47,8 @@ def main():
 	else:
 		data = {}
 
-	if args.maxent == 1:
-		init_maxent_model()
+	if args.maxent:
+		init_maxent_model(args.maxent)
 
 	#put clusters in specific order for consistent behavior across environments
 	topic_clusters = sorted(topic_clusters.items(), key=operator.itemgetter(0))
@@ -77,8 +79,11 @@ def main():
 	
 		#order
 		log_info("get_ordered_sentences starting..." )
-		sents = get_ordered_sentences(sents)
-#		print("ranked_sentences\n", sents)
+		if args.entity_grid == 1:
+			sents = get_ordered_sentences(sents)
+		else:
+			sents = ts_order(sents)
+		print("ranked_sentences\n", sents)
 
 		#simplify person names
 		log_info("simplify names ...")

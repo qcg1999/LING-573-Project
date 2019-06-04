@@ -21,19 +21,18 @@ def get_sentences_aquaint2(docs):
 
 def get_sentences_gigaword(docs):
     sentences = []
-    log_info("Processing Gigaword (this could take a while)")
     for file_name, file_id in docs:
-        log_info("Processing Gigaword cluster %s" % file_id)
-        f = gzip.open(file_name)
+        f = gzip.open(file_name, 'rt')
 
         #run bs only on relevant portion
         doc_lines = []
-        line = str(f.readline())
+        line = f.readline()
         while line.find(file_id) < 0:
-            line = str(f.readline())
+            line = f.readline()
         while line.find('</DOC>') < 0:
             doc_lines.append(line)
-            line = str(f.readline())
+            line = f.readline()
+        doc_lines.append(line)
 
         soup = BeautifulSoup(''.join(doc_lines), 'lxml')
         docs = soup.findAll('doc', id=file_id)

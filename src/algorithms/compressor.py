@@ -14,7 +14,6 @@ parser_jar 		= '/NLP_TOOLS/parsers/stanford_parser/latest/stanford-parser.jar'
 
 os.environ['CLASSPATH'] = stanford_home
 
-MODEL_PATH = "compression_model"
 model = None
 
 def compress_sents(sentences):
@@ -33,10 +32,10 @@ def compress_sents(sentences):
 
 	return compressed
 
-def init_maxent_model():
+def init_maxent_model(model_path):
 	global model, tokenizer
 
-	f = open(MODEL_PATH, 'rb')
+	f = open(model_path, 'rb')
 	model = pickle.load(f)
 	f.close()
 

@@ -40,5 +40,5 @@ def _clean(sentence):
 	sentence = re.sub(r'\s([?.!,\'])', r'\1', sentence)
 	sentence = re.sub(r'(\$)\s', r'\1', sentence)
 	#Capitalize
-	sentence = sentence[0].upper() + sentence[1:]
+	sentence = sentence[:1].upper() + sentence[1:]
 	return sentence
