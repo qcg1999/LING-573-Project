@@ -21,7 +21,8 @@ fi
 ### generate rouge config file
 CONFIG="rouge_run_D4_devtest.xml"   #change
 SOURCE_DIR="../outputs/D4_devtest"  #change
-$PYTHON_CMD rouge_config_generator.py --config $CONFIG --source_dir $SOURCE_DIR 
+$PYTHON_CMD rouge_config_generator.py --config $CONFIG --source_dir $SOURCE_DIR --directory "/dropbox/18-19/573/Data/models/devtest"
+
 if [ $? -ne 0 ]; then
 	exit -1
 fi
