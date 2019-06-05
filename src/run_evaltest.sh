@@ -13,6 +13,7 @@ export PYTHON_CMD=/opt/python-3.6.3/bin/python3.6
 OUT_DIR="../outputs/D4_evaltest"   # choose one: D4, D4_evaltest, D4_evaltest
 MODE="eval"		 					# choose one: train, dev, eval 
 $PYTHON_CMD main.py --schema $SCHEMA --mode $MODE --output_dir $OUT_DIR
+
 if [ $? -ne 0 ]; then
 	exit -1
 fi
@@ -20,7 +21,8 @@ fi
 ### generate rouge config file
 CONFIG="rouge_run_D4_evaltest.xml"   #change
 SOURCE_DIR="../outputs/D4_evaltest"  #change
-$PYTHON_CMD rouge_config_generator.py --config $CONFIG --source_dir $SOURCE_DIR 
+$PYTHON_CMD rouge_config_generator.py --config $CONFIG --source_dir $SOURCE_DIR --directory "/dropbox/18-19/573/Data/models/evaltest"
+
 if [ $? -ne 0 ]; then
 	exit -1
 fi

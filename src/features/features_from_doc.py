@@ -11,7 +11,18 @@ def get_sentences_aquaint2(docs):
     sentences = []
     for file_name, file_id in docs:
         f = open(file_name)
-        soup = BeautifulSoup(f.read(), "lxml")
+
+        #run bs only on relevant portion
+        doc_lines = []
+        line = f.readline()
+        while line.find(file_id) < 0:
+            line = f.readline()
+        while line.find('</DOC>') < 0:
+            doc_lines.append(line)
+            line = f.readline()
+        doc_lines.append(line)
+
+        soup = BeautifulSoup(''.join(doc_lines), "lxml")
         docs = soup.findAll("doc", id=file_id)
         for doc in docs:
             for p in doc.findAll("p"):
@@ -20,29 +31,47 @@ def get_sentences_aquaint2(docs):
     return sentences
 
 def get_sentences_gigaword(docs):
-	sentences = []
-	log_info("Processing Gigaword (this could take a while)")
-	for file_name, file_id in docs:
-		log_info("Processing Gigaword cluster %s" % file_id)
-		f = gzip.open(file_name)
-		soup = BeautifulSoup(f.read(), 'lxml')
-		docs = soup.findAll('doc', id=file_id)
-		for doc in docs:
-			for p in doc.findAll('p'):
-				sentences += nltk.sent_tokenize(p.text)
-		f.close()
-	return sentences
+    sentences = []
+    for file_name, file_id in docs:
+        f = gzip.open(file_name, 'rt')
+
+        #run bs only on relevant portion
+        doc_lines = []
+        line = f.readline()
+        while line.find(file_id) < 0:
+            line = f.readline()
+        while line.find('</DOC>') < 0:
+            doc_lines.append(line)
+            line = f.readline()
+        doc_lines.append(line)
+
+
+        soup = BeautifulSoup(''.join(doc_lines), 'lxml')
+        docs = soup.findAll('doc', id=file_id)
+        for doc in docs:
+            for p in doc.findAll('p'):
+                sentences += nltk.sent_tokenize(p.text)
+        f.close()
+    return sentences
 
 def get_sentences_aquaint1(docs):
     sentences = []
     for file_name, file_id in docs:
         f = open(file_name)
-        soup = BeautifulSoup(f.read(), "lxml")
-        docs = soup.findAll("doc")
-        for doc in docs:
-            if file_id in doc.findAll("docno")[0].text:
-                for p in doc.findAll("p"):
-                    sentences += nltk.sent_tokenize(p.text)
+
+        #run bs only on relevant portion
+        doc_lines = []
+        line = f.readline()
+        while line.find(file_id) < 0:
+            line = f.readline()
+        while line.find('</DOC>') < 0:
+            doc_lines.append(line)
+            line = f.readline()
+        doc_lines.append(line)
+
+        soup = BeautifulSoup(''.join(doc_lines), "lxml")
+        for p in soup.findAll("p"):
+            sentences += nltk.sent_tokenize(p.text)
         f.close()
     return sentences
 
