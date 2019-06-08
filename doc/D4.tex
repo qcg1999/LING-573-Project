@@ -55,7 +55,7 @@ Multi-document summarization systems seek to aggregate collections of text docum
 This report is structured as follows: Section 2 provides an overview of our system and its components, including a description of the AQUAINT dataset; section 3 details our approach to generating summaries using TextRank and entity-grid representations; section 4 presents result metrics; section 5 is a discussion of the approach and details potential improvements to the baseline system; section 6 concludes.
 
 \section{System Overview}
-The system is divided into three primary components: a content selector, a ranker, and a sentence ordering algorithm. The content selector is responsible for ingesting a schema file which details one or more document clusters in the AQUAINT datasets. The selector identifies which documents belong together in a cluster and then ingests those documents as plain text. The system extracts feature vectors from each sentence by computing word frequencies. The feature vectors are given as input to the ranking algorithm which runs TextRank to sort vectors by salience. Ranked sentences undergo deduplication and the system selects the top-K salient sentences as input to an entity-based representation mechanism which is used to model coherence and improve human readability.
+The system is divided into four primary components: a content selector, a ranker, a sentence ordering algorithm, and a compression algorithm. The content selector is responsible for ingesting a schema file which details one or more document clusters in the AQUAINT datasets. The selector identifies which documents belong together in a cluster and then ingests those documents as plain text. The system extracts feature vectors from each sentence by computing word frequencies. The feature vectors are given as input to the ranking algorithm which runs TextRank to sort vectors by salience. Sentences are selected and compressed in order of salience until the summary surpasses the word limit (100 words) at which point the last sentence is discarded. Finally, sentences are ordered by one of of two methods: they are either fed through an entity-grid based algorithm, or ranked by the shortest path between their feature vectors.
 
 \subsection{Architecture}
 \begin{figure}
@@ -118,30 +118,55 @@ Following the conventions established in Barzilay and Lapata 2008, we use the gr
 
 The entity grid is populated with weight values corresponding to the grammatical function of an entity in a given sentence, where a table entry $E_{i,j}$ is weighted depending on the grammatical role of entity $j$ in sentence $i$. 
 
-\subsection{Baselines}
-In addition to the entity grid algorithm, we implemented three baseline ordering algorithms.
 
-\subsubsection{Saliency Order}
-The saliency baseline outputs sentences in the same order that they were returned by TextRank.\\
+\subsubsection{Shortest Path}
+The shortest path ordering algorithm orders the sentences by solving the traveling salesman problem for the feature vectors of the selected sentences.
 
-\subsubsection{Original Document Order}
-For the original order baseline system, the position of a sentence in a summary is determined by its placement in its original document.\\
+The distances between vectors are calculated using cosine similarity.
 
-During the feature extraction stage, a number is generated for each sentence to represent the position of the sentence in the document. This number is calculated by dividing the number of preceding sentences by the total number of sentences in the document.\\
+The sentences are output in the order of the shortest path, starting with the most salient of the two endpoints.
 
-After TextRank is run, the selected sentences are sorted by their position values to form the final summary.\\
+\subsection{Compression}
 
-\subsubsection{Traveling Salesman Order}
-The "traveling salesman" baseline system orders the sentences by solving the traveling salesman problem for the feature vectors of the selected sentences.\\
+\subsubsection{Rule-based compression}
 
-The distances between vectors are calculated using cosine similarity.\\
+\subsubsection{Model-based compression}
 
-The sentences are output in the order of the shortest path, starting with the most salient of the two endpoints.\\
+Our model-based compression algorithm is based on the work of Wang et al (2013).
+
+We began by training a MaxEnt model on hand-annotated compression data from Clarke and Lapata (2008). The training data was downloaded from \url{https://www.jamesclarke.net/research/resources}. We used 1000 sentences from the Broadcast News Compression Corpus.
+
+The feature vectors used for training were many of the same features used in Wang et al, including:
+\begin{itemize}
+\item all leaves fall within first 3 tokens?
+\item all leaves fall within last 3 tokens?
+\item subsumes first 3 tokens?
+\item subsumes last 3 tokens?
+\item contains words longer than 10 letters?
+\item subsumes only one leaf?
+\item subsumes entire sentence?
+\item contains capitalization?
+\item contains all caps word?
+\item contains negation?
+\item contains stopwords?
+\item falls within parenthetical?
+\item contains lead adverbial?
+\item contains relative clause?
+\item contains lead prepositional clause?
+\item depth of node
+\item node label
+\item left sibling node label
+\item right sibling node label
+\item left sibling node label of parent
+\item right sibling node label of parent
+\end{itemize}
+
+We formulated the problem space for each sentence as the possible sequences of "keep" and "delete" labels for each node of the syntax tree. We then performed a heuristic search of the problem space with the trained MaxEnt model as the scoring function. At each node, our algorithm performs search recursively on each child node, then returns the 5 highest scoring sequences found using those results. Of the five sequences discovered by running search on the head node, the highest scoring one is used to compress the sentence.
 
 \section{Results}
 \textbf{Table 1} and \textbf{Table 2} present ROUGE-1 and ROUGE-2 metrics for development and evaluation data.
 
-\begin{table}[h]
+\begin{table*}[h]
 \begin{tabular}{|p{4.3cm}||p{1.735cm}|p{1.78cm}|p{1.735cm}|p{1.735cm}|p{1.78cm}|p{1.735cm}| }
  \hline
  \multicolumn{7}{|c|}{Development set ROUGE-1 and ROUGE-2 scores} \\
@@ -150,15 +175,15 @@ The sentences are output in the order of the shortest path, starting with the mo
  \hline
 Entity grid, rule-based & 0.21643 & 0.23487 & 0.22322 & 0.05036 & 0.05311 & 0.05133 \\
 Shortest path, rule-based & 0.21865 & 0.23280 & 0.22400 & \textbf{0.05054} & 0.05282 & 0.05136 \\
-Entity grid, model-based & 0.20716 & 0.27003 & 0.23264 & 0.04610 & 0.05970 & \textbf{0.05169} \\
-Shortest path, model-based & \textbf{0.20730} & \textbf{0.27023} & \textbf{0.23280} & 0.04586 & \textbf{0.06043} & 0.05173 \\
+Entity grid, model-based & 0.20716 & 0.27003 & 0.23264 & 0.04610 & 0.05970 & 0.05169 \\
+Shortest path, model-based & \textbf{0.20730} & \textbf{0.27023} & \textbf{0.23280} & 0.04586 & \textbf{0.06043} & \textbf{0.05173} \\
 \hline
 \end{tabular}
 \caption{Evaluation metrics on AQUAINT data}
 \label{tab:dev} 
-\end{table}
+\end{table*}
 
-\begin{table}[h]
+\begin{table*}[h]
 \begin{tabular}{|p{4.3cm}||p{1.735cm}|p{1.78cm}|p{1.735cm}|p{1.735cm}|p{1.78cm}|p{1.735cm}| }
  \hline
  \multicolumn{7}{|c|}{Evaluation set ROUGE-1 and ROUGE-2 scores} \\
@@ -173,11 +198,11 @@ Shortest path, model-based & 0.24993 & 0.31408 & 0.27512 & 0.06276 & 0.07798 & 0
 \end{tabular}
 \caption{Evaluation metrics on Gigaword data}
 \label{tab:dev} 
-\end{table}
+\end{table*}
 
 \section{Discussion}
-Problematically, there was little difference between our various sorting algorithms. Part of the problem is that the algorithms had to work with what they were given; often, there was no good way to organize the selected sentences.\\
-A big issue with our current system is that it lacks sufficient preprocessing and postprocessing. By incorporating more linguistic information in our feature vectors and transforming the selected sentences during content realization, we hope to make significant improvements in our next iteration.\\
+
+
 
 
 \section{Conclusion}
@@ -186,8 +211,8 @@ A big issue with our current system is that it lacks sufficient preprocessing an
 % include your own bib file like this:
 %\bibliographystyle{acl}
 %\bibliography{acl2014}
-%%\begin{thebibliography}{}
-\iffalse
+\begin{thebibliography}{}
+
 \bibitem{textrank04}
 	Rada Mihalcea and Paul Tarau,
 	\textit{TextRank: Bringing Order into Texts},
@@ -199,7 +224,17 @@ A big issue with our current system is that it lacks sufficient preprocessing an
     \textit{Modeling Local Coherence: An Entity-Based Approach}
     Computational Linguistics, 
     2008
-\fi
-%%\end{thebibliography}
+\bibitem{wang13}
+	Lu Wang et al,
+	\textit{A Sentence Compression Based Framework to Query-Focused Multi-Document Summarization},
+	Proceedings of the 51st Annual Meeting of the Association for Computational Linguistics, pages 1384-1394,
+	2013
+\bibitem{clarke08}
+	James Clarke and Mirella Lapata,
+	\textit{Global Inferece for Sentence Compression: An Integer Linear Programming Approach},
+	Journal of Artificial Intelligence Research vol 31, pages 399-429,
+	2008
+
+\end{thebibliography}
 
 \end{document}
