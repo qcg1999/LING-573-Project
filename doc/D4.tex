@@ -192,7 +192,7 @@ The feature vectors used for training were many of the same features used in Wan
 \item right sibling node label of parent
 \end{itemize}
 
-We formulated the problem space for each sentence as the possible sequences of "keep" and "delete" labels for each node of the syntax tree. We then performed a heuristic search of the problem space with the trained MaxEnt model as the scoring function. At each node, our algorithm performs search recursively on each child node, then returns the 5 highest scoring sequences found using those results. Of the five sequences discovered by running search on the head node, the highest scoring one is used to compress the sentence.
+We formulated the problem space for each sentence as the possible sequences of ``keep" and ``delete" labels for each node of the syntax tree. We then performed a heuristic search of the problem space with the trained MaxEnt model as the scoring function. At each node, our algorithm performs search recursively on each child node, then returns the 5 highest scoring sequences found using those results. Of the five sequences discovered by running search on the head node, the highest scoring one is used to compress the sentence.
 
 \section{Results}
 \textbf{Table 1} and \textbf{Table 2} present ROUGE-1 and ROUGE-2 metrics for development and evaluation data.
