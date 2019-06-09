@@ -195,6 +195,7 @@ The feature vectors used for training were many of the same features used in Wan
 We formulated the problem space for each sentence as the possible sequences of ``keep" and ``delete" labels for each node of the syntax tree. We then performed a heuristic search of the problem space with the trained MaxEnt model as the scoring function. At each node, our algorithm performs search recursively on each child node, then returns the 5 highest scoring sequences found using those results. Of the five sequences discovered by running search on the head node, the highest scoring one is used to compress the sentence.
 
 \section{Results}
+\subsection{ROUGE scores}
 \textbf{Table 1} and \textbf{Table 2} present ROUGE-1 and ROUGE-2 metrics for development and evaluation data.
 
 \begin{table*}[h]
@@ -229,6 +230,32 @@ Shortest path, model-based & 0.24993 & 0.31408 & 0.27512 & 0.06276 & 0.07798 & 0
 \end{tabular}
 \caption{Evaluation metrics on Gigaword data}
 \label{tab:dev} 
+\end{table*}
+
+\subsection{Human Evaluation}
+Readability is an important aspect of document summarization that is not represented by ROUGE scores. \textbf{Table 3} shows human eval scores for six of our summaries based on ratings given by 4 annotators on a scale from 1 to 5.
+
+\begin{table*}[h]
+	\centering
+	\begin{tabular}{|c|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|}
+	\hline
+		\textbf{Topic} & \multicolumn{4}{|c|}{\textbf{Individual annotator scores}} & \textbf{mean}\\
+	\hline
+	Plane crash Indonesia & 2 & 3 & 4 & 3 & 3.0\\
+	\hline
+	Tuna overfishing & 2 & 2 & 3 & 4 & 2.75\\
+	\hline
+	China food safety & 3 & 1 & 2 & 2 & 2.0\\
+	\hline
+	Cyclone Sidr & 2 & 2 & 3 & 3 & 2.5\\
+	\hline
+	Dimona attack & 2 & 2 & 3 & 4 & 2.75 \\
+	\hline
+	Sichuan earthquake & 2 & 2 & 3 & 2 & 2.25\\
+	\hline
+\end{tabular}
+\caption{Human evaluation of 6 summaries}
+\label{tab:dev}
 \end{table*}
 
 \section{Discussion}
