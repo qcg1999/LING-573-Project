@@ -21,6 +21,7 @@
 \usepackage{latexsym}
 \usepackage{graphicx}
 \usepackage[labelfont=bf]{caption}
+\usepackage{xcolor}
 
 %\setlength\titlebox{5cm}
 
@@ -120,7 +121,7 @@ The entity grid is populated with weight values corresponding to the grammatical
 
 
 \subsubsection{Shortest Path}
-The shortest path ordering algorithm orders the sentences by solving the traveling salesman problem for the feature vectors of the selected sentences.
+The shortest path ordering algorithm orders the sentences by solving the traveling salesman problem for the feature vectors of the selected sentences. 
 
 The distances between vectors are calculated using cosine similarity.
 
@@ -129,6 +130,36 @@ The sentences are output in the order of the shortest path, starting with the mo
 \subsection{Compression}
 
 \subsubsection{Rule-based compression}
+A rule-based compression is implemented in our system which shortens each sentence by parsing each sentence and then removing less important syntactic component such as PP and DT. Here is an example of a shortened sentence in our system output:
+\\
+
+\fbox{\begin{minipage}{17em}
+\small {
+
+Senior Palestinian official Yasser Abed Rabbo denied on Tuesday reports saying that Palestinian leader Yasser Arafat has died {\color{gray}in a French hospital}.
+
+}
+\end{minipage}}
+\\
+
+Our system also uses named entity recognition tool to simplify person’s name when mentioned multiple times in a summary. For example: 
+\\
+
+\fbox{\begin{minipage}{17em}
+\small {
+\par \noindent 
+Senior Palestinian official  denied reports saying that Palestinian leader {\bfseries Yasser Arafat} has died. 
+\newline \par \noindent
+As {\bfseries Arafat} had struggled for life, there has been wild guess as to  
+\newline \par \noindent
+French foreign minister told LCI television that {\bfseries Arafat} was alive but that  
+\newline \par \noindent
+Palestinian leader {\color{gray}Yasser} {\bfseries Arafat} would be buried at his headquarters in the West Bank town of Ramallah
+}
+\end{minipage}}
+\\
+
+We did not exhaust all possible syntactic components due to constraint of time.
 
 \subsubsection{Model-based compression}
 
