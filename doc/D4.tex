@@ -46,17 +46,17 @@
 \begin{document}
 \maketitle
 \begin{abstract}
-We describe an unsupervised multi-document summarization system using TextRank, a graph-based algorithm for ranking salient sentences in a corpus of text documents. The most salient sentences are selected and then re-ordered using a local coherence algorithm for modeling entity distributions across the input texts. The system is divided into four components for selecting content, generating feature representations, ranking, and ordering.
+We describe an unsupervised multi-document summarization system. Given a corpus, salient sentences are selected through the TextRank algorithm and then re-ordered using a local coherence algorithm for modeling entity distributions across the text. The ordered result set is then compressed using either rule-based or machine learning techniques. The system is divided into three components for ranking salient sentences, logical ordering, and result compression. We evaluate our system on the AQUAINT, AQUAINT-2, and Gigaword corpora.
 \end{abstract}
 
 \section{Introduction}
 
 Multi-document summarization systems seek to aggregate collections of text documents and condense their content to provide cohesive summaries. Traditional approaches to summarization fall into two distinct categories: abstractive and extractive. Abstractive techniques are categorized based on their ability to generate novel summary content, in contrast with extractive approaches which select significant content directly from the source documents. In this work, we present an unsupervised system for extractive multi-document summarization over a benchmark dataset. The system is centered around the TextRank algorithm, which is a graph-based technique to identify and rank the most salient sentences in the input documents. We evaluate our system on the AQUAINT, AQUAINT-2, and Gigaword corpora, with average ROUGE-1 and ROUGE-2 F-scores of $0.28385$ and $0.07365$, respectively. 
 
-This report is structured as follows: Section 2 provides an overview of our system and its components, including a description of the AQUAINT dataset; section 3 details our approach to generating summaries using TextRank and entity-grid representations; section 4 presents result metrics; section 5 is a discussion of the approach and details potential improvements to the baseline system; section 6 concludes.
+This report is structured as follows: Section 2 provides an overview of our system and its components, including a description of the AQUAINT dataset; section 3 details our approach to generating summaries using TextRank, entity-grid representations, and compression techniques; section 4 presents result metrics; section 5 is a discussion of the approach and an error analysis; and section 6 concludes.
 
 \section{System Overview}
-The system is divided into four primary components: a content selector, a ranker, a sentence ordering algorithm, and a compression algorithm. The content selector is responsible for ingesting a schema file which details one or more document clusters in the AQUAINT datasets. The selector identifies which documents belong together in a cluster and then ingests those documents as plain text. The system extracts feature vectors from each sentence by computing word frequencies. The feature vectors are given as input to the ranking algorithm which runs TextRank to sort vectors by salience. Sentences are selected and compressed in order of salience until the summary surpasses the word limit (100 words) at which point the last sentence is discarded. Finally, sentences are ordered by one of of two methods: they are either fed through an entity-grid based algorithm, or ranked by the shortest path between their feature vectors.
+The system is divided into three primary components: a graph-based content selector, an ordering algorithm, and a compression algorithm. The content selector is responsible for ingesting a schema file which details one or more document clusters in the AQUAINT datasets. The selector identifies which documents belong together in a cluster and then ingests those documents as plain text. The system extracts feature vectors from each sentence by computing word frequencies. The feature vectors are given as input to the  TextRank algorithm to sort vectors by salience. Sentences are selected and compressed in order of salience until the summary surpasses the word limit (100 words) at which point the last sentence is discarded. Finally, sentences are ordered by one of of two methods: they are either fed through an entity-grid based algorithm, or ranked by the shortest path between their feature vectors. The logically ordered sentences are further compressed using either a rule-based algorithm or a MaxEnt model trained to compress text.
 
 \subsection{Architecture}
 \begin{figure}
@@ -67,8 +67,8 @@ The system is divided into four primary components: a content selector, a ranker
 
 Figure \ref{fig:arch} provides an illustration of the existing system architecture.
 
-\subsection{AQUAINT Dataset}
-We use the AQUAINT (Advanced Question-Answering for Intelligence) and AQUAINT-2 corpora to provide input to our system. Both datasets are composed of English newswire texts. For the multi-document summarization task, we leverage a corresponding schema file which defines one or more document-topic clusters. 
+\subsection{Datasets}
+We use the AQUAINT (Advanced Question-Answering for Intelligence) and AQUAINT-2 corpora to provide input to our system. Both datasets are composed of English newswire texts. For the multi-document summarization task, we leverage a corresponding schema file which defines one or more document-topic clusters. For evaluation, we use a subset of the Gigaword dataset.
 
 \section{Approach}
 
