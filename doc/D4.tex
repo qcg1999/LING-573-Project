@@ -51,7 +51,7 @@ We describe an unsupervised multi-document summarization system using TextRank, 
 
 \section{Introduction}
 
-Multi-document summarization systems seek to aggregate collections of text documents and condense their content to provide cohesive summaries. Traditional approaches to summarization fall into two distinct categories: abstractive and extractive. Abstractive techniques are categorized based on their ability to generate novel summary content, in contrast with extractive approaches which select significant content directly from the source documents. In this work, we present an unsupervised system for extractive multi-document summarization over a benchmark dataset. The system is centered around the TextRank algorithm, which is a graph-based technique to identify and rank the most salient sentences in the input documents. We evaluate our system on the AQUAINT and AQUAINT-2 corpora, with average ROUGE-1 and ROUGE-2 F-scores of $0.26093$ and $0.06952$, respectively. 
+Multi-document summarization systems seek to aggregate collections of text documents and condense their content to provide cohesive summaries. Traditional approaches to summarization fall into two distinct categories: abstractive and extractive. Abstractive techniques are categorized based on their ability to generate novel summary content, in contrast with extractive approaches which select significant content directly from the source documents. In this work, we present an unsupervised system for extractive multi-document summarization over a benchmark dataset. The system is centered around the TextRank algorithm, which is a graph-based technique to identify and rank the most salient sentences in the input documents. We evaluate our system on the AQUAINT, AQUAINT-2, and Gigaword corpora, with average ROUGE-1 and ROUGE-2 F-scores of $0.28385$ and $0.07365$, respectively. 
 
 This report is structured as follows: Section 2 provides an overview of our system and its components, including a description of the AQUAINT dataset; section 3 details our approach to generating summaries using TextRank and entity-grid representations; section 4 presents result metrics; section 5 is a discussion of the approach and details potential improvements to the baseline system; section 6 concludes.
 
@@ -142,7 +142,7 @@ Senior Palestinian official Yasser Abed Rabbo denied on Tuesday reports saying t
 \end{minipage}}
 \\
 
-Our system also uses named entity recognition tool to simplify person’s name when mentioned multiple times in a summary. For example: 
+Our system also uses named entity recognition tool to simplify personï¿½s name when mentioned multiple times in a summary. For example: 
 \\
 
 \fbox{\begin{minipage}{17em}
@@ -196,7 +196,9 @@ We formulated the problem space for each sentence as the possible sequences of `
 
 \section{Results}
 \subsection{ROUGE scores}
-\textbf{Table 1} and \textbf{Table 2} present ROUGE-1 and ROUGE-2 metrics for development and evaluation data.
+\textbf{Table 1} and \textbf{Table 2} present ROUGE-1 and ROUGE-2 metrics for development and evaluation data. For the development set, the best reported  ROUGE-1 F1 score is given by the baseline algorithm. The baseline algorithm contains no compression logic, which likely accounts for the reduced score in the updated system. Similarly, for the ROUGE-2 scores, the baseline algorithm gives the best recall, precision, and F1 metrics.
+
+The evaluation dataset is taken from the Gigaword corpus. Both ROUGE-1 and ROUGE-2 F1 scores outperform the baseline algorithm.
 
 \begin{table*}[h]
 \begin{tabular}{|p{4.3cm}||p{1.735cm}|p{1.78cm}|p{1.735cm}|p{1.735cm}|p{1.78cm}|p{1.735cm}| }
@@ -205,10 +207,11 @@ We formulated the problem space for each sentence as the possible sequences of `
  \hline
  \textbf{Algorithm} & \textbf{ROUGE-1 Recall} & \textbf{ROUGE-1 Precision} & \textbf{ROUGE-1 F1} & \textbf{ROUGE-2 Recall} & \textbf{ROUGE-2 Precision} & \textbf{ROUGE-2 F1}\\
  \hline
+Baseline algorithm & 0.21358 & \textbf{0.27155} & \textbf{0.23732} & \textbf{0.05335} & \textbf{0.06814} & \textbf{0.05937} \\ 
 Entity grid, rule-based & 0.21643 & 0.23487 & 0.22322 & 0.05036 & 0.05311 & 0.05133 \\
-Shortest path, rule-based & 0.21865 & 0.23280 & 0.22400 & \textbf{0.05054} & 0.05282 & 0.05136 \\
+Shortest path, rule-based & \textbf{0.21865} & 0.23280 & 0.22400 & 0.05054 & 0.05282 & 0.05136 \\
 Entity grid, model-based & 0.20716 & 0.27003 & 0.23264 & 0.04610 & 0.05970 & 0.05169 \\
-Shortest path, model-based & \textbf{0.20730} & \textbf{0.27023} & \textbf{0.23280} & 0.04586 & \textbf{0.06043} & \textbf{0.05173} \\
+Shortest path, model-based & 0.20730 & 0.27023 & 0.23280 & 0.04586 & 0.06043 & 0.05173 \\
 \hline
 \end{tabular}
 \caption{Evaluation metrics on AQUAINT data}
