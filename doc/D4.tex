@@ -150,11 +150,11 @@ Our system also uses named entity recognition tool to simplify person’s name whe
 \par \noindent 
 Senior Palestinian official  denied reports saying that Palestinian leader {\bfseries Yasser Arafat} has died. 
 \newline \par \noindent
-As {\bfseries Arafat} had struggled for life, there has been wild guess as to  
+As {\bfseries Arafat} had struggled for life, there has been wild guess as to ...
 \newline \par \noindent
-French foreign minister told LCI television that {\bfseries Arafat} was alive but that  
+French foreign minister told LCI television that {\bfseries Arafat} was alive but that ...
 \newline \par \noindent
-Palestinian leader {\color{gray}Yasser} {\bfseries Arafat} would be buried at his headquarters in the West Bank town of Ramallah
+Palestinian leader {\color{gray}Yasser} {\bfseries Arafat} would be buried at his headquarters in the West Bank town of Ramallah.
 }
 \end{minipage}}
 \\
@@ -260,7 +260,32 @@ Readability is an important aspect of document summarization that is not represe
 
 \section{Discussion}
 
+By visually checking results from both Development and Evaluation data, we did identify a couple of issues related to compression and content realization. One is the loss of grammaticality after compression, which happened on many cases of incomplete removal of PP, which can be illustrated by the following example:
+\\
 
+\fbox{\begin{minipage}{17em}
+\small {
+
+The death toll {\bfseries from the} that struck the coastline {\bfseries near the} of Aitape in the province Friday night, was announced 64 and people were missing.
+
+}
+\end{minipage}}
+\\ 
+
+Two, pronoun appears without antecendent. This is due to the lack of implementation of co-refernece. 
+\\
+
+\fbox{\begin{minipage}{17em}
+\small {
+\par \noindent 
+{\bfseries He} said that the company did not ...
+\newline \par \noindent
+{\bfseries He} estimated that ... 
+}
+\end{minipage}}
+\\
+
+Other minor issues such as missing and mismatching punctuations were also identified. All these issues affected the readability of the summaries.
 
 
 \section{Conclusion}
