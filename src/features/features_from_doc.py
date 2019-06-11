@@ -45,7 +45,6 @@ def get_sentences_gigaword(docs):
             line = f.readline()
         doc_lines.append(line)
 
-
         soup = BeautifulSoup(''.join(doc_lines), 'lxml')
         docs = soup.findAll('doc', id=file_id)
         for doc in docs:
