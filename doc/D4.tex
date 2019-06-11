@@ -53,10 +53,10 @@ We describe an unsupervised multi-document summarization system. Given a corpus,
 
 Multi-document summarization systems seek to aggregate collections of text documents and condense their content to provide cohesive summaries. Traditional approaches to summarization fall into two distinct categories: abstractive and extractive. Abstractive techniques are categorized based on their ability to generate novel summary content, in contrast with extractive approaches which select significant content directly from the source documents. In this work, we present an unsupervised system for extractive multi-document summarization over a benchmark dataset. The system is centered around the TextRank algorithm, which is a graph-based technique to identify and rank the most salient sentences in the input documents. We evaluate our system on the AQUAINT, AQUAINT-2, and Gigaword corpora, with average ROUGE-1 and ROUGE-2 F-scores of $0.28385$ and $0.07365$, respectively. 
 
-This report is structured as follows: Section 2 provides an overview of our system and its components, including a description of the AQUAINT dataset; section 3 details our approach to generating summaries using TextRank, entity-grid representations, and compression techniques; section 4 presents result metrics; section 5 is a discussion of the approach and an error analysis; and section 6 concludes.
+This report is structured as follows: Section 2 provides an overview of our system and its components, including a brief description of the datasets used to train and evaluate the experiment; section 3 details our approach to generating summaries using TextRank, entity-grid representations, and compression techniques; section 4 presents result metrics; section 5 is a discussion and error analysis; and section 6 concludes.
 
 \section{System Overview}
-The system is divided into three primary components: a graph-based content selector, an ordering algorithm, and a compression algorithm. The content selector is responsible for ingesting a schema file which details one or more document clusters in the AQUAINT datasets. The selector identifies which documents belong together in a cluster and then ingests those documents as plain text. The system extracts feature vectors from each sentence by computing word frequencies. The feature vectors are given as input to the  TextRank algorithm to sort vectors by salience. Sentences are selected and compressed in order of salience until the summary surpasses the word limit (100 words) at which point the last sentence is discarded. Finally, sentences are ordered by one of of two methods: they are either fed through an entity-grid based algorithm, or ranked by the shortest path between their feature vectors. The logically ordered sentences are further compressed using either a rule-based algorithm or a MaxEnt model trained to compress text.
+The system is divided into three primary components: a graph-based content selector, an ordering algorithm, and a compression algorithm. The content selector is responsible for ingesting a schema file which details one or more document clusters in the AQUAINT and Gigaword datasets. The selector identifies which documents belong together in a cluster and then ingests those documents as plain text. The system extracts feature vectors from each sentence by computing word frequencies. The feature vectors are given as input to the  TextRank algorithm to sort vectors by salience. Sentences are selected and compressed in order of salience until the summary surpasses the word limit (100 words) at which point the last sentence is discarded. Sentences are ordered by one of of two methods: they are either fed through an entity-grid based algorithm, or ranked by the shortest path between their feature vectors. The logically ordered sentences are further compressed using either a rule-based algorithm or a MaxEnt model trained to compress text.
 
 \subsection{Architecture}
 \begin{figure}
@@ -128,21 +128,21 @@ The distances between vectors are calculated using cosine similarity.
 The sentences are output in the order of the shortest path, starting with the most salient of the two endpoints.
 
 \subsection{Compression}
+This section discusses the sentence compression modules for proper content realization.
 
 \subsubsection{Rule-based compression}
 A rule-based compression is implemented in our system which shortens each sentence by parsing each sentence and then removing less important syntactic component such as PP and DT. Here is an example of a shortened sentence in our system output:
 \\
-
 \fbox{\begin{minipage}{17em}
 \small {
 
 Senior Palestinian official Yasser Abed Rabbo denied on Tuesday reports saying that Palestinian leader Yasser Arafat has died {\color{gray}in a French hospital}.
 
-}
+} \\
 \end{minipage}}
 \\
 
-Our system also uses named entity recognition tool to simplify person�s name when mentioned multiple times in a summary. For example: 
+The system leverages a named entity recognition capability to identify and simplify individual person mentions when a name is referenced multiple times. For example:
 \\
 
 \fbox{\begin{minipage}{17em}
@@ -159,7 +159,7 @@ Palestinian leader {\color{gray}Yasser} {\bfseries Arafat} would be buried at hi
 \end{minipage}}
 \\
 
-We did not exhaust all possible syntactic components due to constraint of time.
+We did not exhaust all possible syntactic components. This is discussed further in subsequent sections.
 
 \subsubsection{Model-based compression}
 
@@ -194,11 +194,14 @@ The feature vectors used for training were many of the same features used in Wan
 
 We formulated the problem space for each sentence as the possible sequences of ``keep" and ``delete" labels for each node of the syntax tree. We then performed a heuristic search of the problem space with the trained MaxEnt model as the scoring function. At each node, our algorithm performs search recursively on each child node, then returns the 5 highest scoring sequences found using those results. Of the five sequences discovered by running search on the head node, the highest scoring one is used to compress the sentence.
 
-\section{Results}
-\subsection{ROUGE scores}
-\textbf{Table 1} and \textbf{Table 2} present ROUGE-1 and ROUGE-2 metrics for development and evaluation data. For the development set, the best reported  ROUGE-1 F1 score is given by the baseline algorithm. The baseline algorithm contains no compression logic, which likely accounts for the reduced score in the updated system. Similarly, for the ROUGE-2 scores, the baseline algorithm gives the best recall, precision, and F1 metrics.
+\subsection{Baseline System}
+The baseline for this experiment is a system with each aforementioned component except the compression algorithms. In theory, this baseline still generates ordered salient results but disregards human readability. The baseline is evaluated on the development corpus comprised of AQUAINT and AQUAINT-2 data.
 
-The evaluation dataset is taken from the Gigaword corpus. Both ROUGE-1 and ROUGE-2 F1 scores outperform the baseline algorithm.
+\section{Results}
+We present result metrics for both ROUGE-1 and ROUGE-2 over the development and evaluation corpora. In addition, we provide human evaluations for six generated summaries. 
+
+\subsection{ROUGE scores}
+\textbf{Table 1} and \textbf{Table 2} present ROUGE-1 and ROUGE-2 metrics for development and evaluation data. For the development set, the best reported  ROUGE-1 F1 score is given by the baseline algorithm. The reduced scores in the updated system are likely due to the compression component, which focuses on readability. Similarly, for the ROUGE-2 scores, the baseline algorithm gives the best recall, precision, and F1 metrics.
 
 \begin{table*}[h]
 \begin{tabular}{|p{4.3cm}||p{1.735cm}|p{1.78cm}|p{1.735cm}|p{1.735cm}|p{1.78cm}|p{1.735cm}| }
@@ -261,9 +264,9 @@ Readability is an important aspect of document summarization that is not represe
 \label{tab:dev}
 \end{table*}
 
-\section{Discussion}
+\section{Discussion \& Error Analysis}
 
-By visually checking results from both Development and Evaluation data, we did identify a couple of issues related to compression and content realization. One is the loss of grammaticality after compression, which happened on many cases of incomplete removal of PP, which can be illustrated by the following example:
+By visually checking results from both development and evaluation data, we did identify several of issues related to compression and content realization. One is the loss of grammaticality after compression, which happened on many cases of incomplete removal of PP, which can be illustrated by the following example:
 \\
 
 \fbox{\begin{minipage}{17em}
@@ -275,7 +278,7 @@ The death toll {\bfseries from the} that struck the coastline {\bfseries near th
 \end{minipage}}
 \\ 
 
-Two, pronoun appears without antecendent. This is due to the lack of implementation of co-refernece. 
+Secondly, pronouns occasionally appear without an antecedent. This is due to the lack of support for anaphora resolution. 
 \\
 
 \fbox{\begin{minipage}{17em}
@@ -288,11 +291,13 @@ Two, pronoun appears without antecendent. This is due to the lack of implementat
 \end{minipage}}
 \\
 
+Beyond the rule-based module, handcrafting additional features for the MaxEnt implementation is another potential area of improvement. Given that the model-based compression system outperformed every other system configuration for the evaluation data, further feature engineering for the model training data could potentially yield improved metrics.
+
 Other minor issues such as missing and mismatching punctuations were also identified. All these issues affected the readability of the summaries.
 
 
 \section{Conclusion}
- We have described an unsupervised system for generating single summaries over multiple documents. The system generates feature vectors per sentence by computing word frequencies, and then provides those frequency vectors as input to the TextRank algorithm. The algorithm is able to identify significant lines of text in a single pass. We take the top K sentences as the corresponding summary, up to 100 words max per summary.
+ We have described an unsupervised system for generating single summaries over multiple documents. The system generates feature vectors per sentence by computing word frequencies, and then provides those frequency vectors as input to the TextRank algorithm. The algorithm is able to identify significant lines of text in a single pass. We take the top K sentences as the corresponding summary, up to 100 words max per summary. The system leverages an entity grid algorithm for intelligent sentence ordering, and cleans the output text through one of two compression implementations.
 
 % include your own bib file like this:
 %\bibliographystyle{acl}
