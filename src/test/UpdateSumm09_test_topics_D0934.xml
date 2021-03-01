@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE TACtaskdata [
+
+<!-- ======================================================================
+      TAC 2009 Update Summarization task data definition
+
+      Written 2009-05-12 by Hoa Dang <hoa.dang@nist.gov>
+     ====================================================================== -->
+
+    <!ELEMENT TACtaskdata  (topic+)           >
+    <!ELEMENT topic       (title, narrative, docsetA, docsetB) >
+    <!ELEMENT title       (#PCDATA)           >
+    <!ELEMENT narrative   (#PCDATA)           >
+    <!ELEMENT docsetA     (doc+)              >
+    <!ELEMENT docsetB     (doc+)              >
+    <!ELEMENT doc          EMPTY              >		       
+
+    <!ATTLIST TACtaskdata
+                      year    CDATA              #REQUIRED
+		      track   (SUMMARIZATION)    #REQUIRED
+                      task    (UPDATE)           #REQUIRED
+		      dataset (SAMPLE|TEST)             #REQUIRED >
+
+    <!ATTLIST topic  id      ID    #REQUIRED >
+
+    <!ATTLIST docsetA  id    ID    #REQUIRED >
+
+    <!ATTLIST docsetB  id    ID    #REQUIRED >
+
+    <!ATTLIST doc      id    CDATA #REQUIRED >   
+
+<!-- ====================================================================== -->
+]>
+
+<TACtaskdata year="2009" track="SUMMARIZATION" task="UPDATE"  dataset="TEST">
+
+<topic id = "D0934G">
+
+	<title> death of Yassar Arafat </title>
+
+	<narrative>
+		Discuss the final illness and death of Yassar Arafat and the funeral preparations.
+	</narrative>
+
+	<docsetA id = "D0934G-A">
+		<doc id = "NYT_ENG_20041108.0035" />
+		<doc id = "AFP_ENG_20041109.0160" />
+		<doc id = "XIN_ENG_20041109.0206" />
+		<doc id = "XIN_ENG_20041109.0219" />
+		<doc id = "APW_ENG_20041109.0244" />
+		<doc id = "XIN_ENG_20041109.0324" />
+		<doc id = "AFP_ENG_20041109.0393" />
+		<doc id = "AFP_ENG_20041109.0554" />
+		<doc id = "AFP_ENG_20041109.0601" />
+		<doc id = "AFP_ENG_20041109.0613" />
+	</docsetA>
+
+	<docsetB id = "D0934G-B">
+		<doc id = "XIN_ENG_20041110.0075" />
+		<doc id = "LTW_ENG_20041110.0100" />
+		<doc id = "AFP_ENG_20041110.0133" />
+		<doc id = "XIN_ENG_20041110.0136" />
+		<doc id = "XIN_ENG_20041110.0192" />
+		<doc id = "AFP_ENG_20041110.0252" />
+		<doc id = "XIN_ENG_20041110.0378" />
+		<doc id = "AFP_ENG_20041111.0014" />
+		<doc id = "AFP_ENG_20041111.0020" />
+		<doc id = "XIN_ENG_20041111.0056" />
+	</docsetB>
+
+</topic>
+
+</TACtaskdata>

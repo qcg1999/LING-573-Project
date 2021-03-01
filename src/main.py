@@ -4,8 +4,10 @@ from features.topic_clusters import find_topic_clusters
 from features.content_realization import *
 from features.features_from_doc import *
 from algorithms.textrank import textrank
+from algorithms.traveling_salesman import ts_order
 from algorithms.entity_grid import * 
-#import algorithms.SummaryGenerator
+from algorithms.compressor import * 
+from algorithms.person_name_simplifier import *
 import os, operator
 import pickle
 
@@ -13,10 +15,13 @@ parser = ArgumentParser()
 parser.add_argument("--schema", type=str, required=True)
 parser.add_argument("--aquaint", type=str, default="/corpora/LDC/LDC02T31")
 parser.add_argument("--aquaint2", type=str, default="/corpora/LDC/LDC08T25")
-parser.add_argument("--output_dir", type=str, default='../outputs/D3')
-parser.add_argument("--mode", type=str, choices=['train','dev','eval'],default='train')
+parser.add_argument("--gigaword", type=str, default="/corpora/LDC/LDC11T07")
+parser.add_argument("--output_dir", type=str, default='../outputs/D4')
+parser.add_argument("--mode", type=str, choices=['train','dev','eval'], default='train')
 parser.add_argument("--store", type=str, default=None)
 parser.add_argument("--load", type=str, default=None)
+parser.add_argument("--maxent", type=str, default=None)
+parser.add_argument("--entity_grid", type=int, default=1)
 
 # CoreNLP configs
 parser.add_argument("--stanford_home", type=str, default="/NLP_TOOLS/parsers/stanford_parser/latest")
@@ -27,7 +32,7 @@ args, unks = parser.parse_known_args()
 
 def main():	
 	log_info("Finding document clusters for %s mode..." % args.mode)
-	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2), args.mode)
+	topic_clusters = find_topic_clusters(args.schema, (args.aquaint, args.aquaint2, args.gigaword), args.mode)
 	log_info("Found %d document clusters." % len(topic_clusters))
 
 	log_info("Summarizing...")
@@ -42,6 +47,9 @@ def main():
 	else:
 		data = {}
 
+	if args.maxent:
+		init_maxent_model(args.maxent)
+
 	#put clusters in specific order for consistent behavior across environments
 	topic_clusters = sorted(topic_clusters.items(), key=operator.itemgetter(0))
 
@@ -53,22 +61,37 @@ def main():
 		else:
 			if args.aquaint in docs[0][0]:
 				sentences, feature_vectors = get_features(docs, 1)
-			else:
+			elif args.aquaint2 in docs[0][0]:
 				sentences, feature_vectors = get_features(docs, 2)
+			else:
+				sentences, feature_vectors = get_features(docs, 3)
 			data[index] = (sentences, feature_vectors)
 
 		log_info("textrank starting...")
-		ranked_sentence_tups = textrank(feature_vectors,sentences)
+		sents = [r[1] for r in textrank(feature_vectors,sentences)]
 
-		ranked_sentences = [r[1] for r in truncate(ranked_sentence_tups)]
+		#compress
+		log_info("compress sentences ...")
+		sents = compress_sents(sents)
+
+		#truncate
+		sents = truncate(sents)
 	
+		#order
 		log_info("get_ordered_sentences starting..." )
-		ranked_sentences = get_ordered_sentences(ranked_sentences)
+		if args.entity_grid == 1:
+			sents = get_ordered_sentences(sents)
+		else:
+			sents = ts_order(sents)
+		print("ranked_sentences\n", sents)
 
-		print("ranked_sentences\n", ranked_sentences)
+		#simplify person names
+		log_info("simplify names ...")
+		sents = simplify_names(sents)
+		
 		
 		log_info("realize starting...")
-		summary = realize2(ranked_sentences)
+		summary = realize2(sents)
 		print("summary: \n", summary)
 
 		summary_file = "{0}/{1}-A.M.100.{2}.0".format(args.output_dir, topic[:-1], topic[-1])
